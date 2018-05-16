@@ -1,4 +1,4 @@
-Package: nonnestcoxph
+Package: nonnestcox
 Title: Comparing nonnested CoxPH models
 Version: 0.0.0.9000
 Authors@R: person("Thomas", "Hielscher", email = "t.hielscher@dkfz.de", role = c("aut", "cre"))
