@@ -12,4 +12,4 @@ Imports: survival,
     sandwich,
     CompQuadForm
 RoxygenNote: 6.0.1
-URL: http://github.com/thomashielscher/nonnestcoxph
+URL: http://github.com/thomashielscher/nonnestcox
