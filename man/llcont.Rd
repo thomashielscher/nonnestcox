@@ -28,7 +28,6 @@ mod <- coxph(Surv(days, status) ~ age + albumin + bili + edema + prothrombin, da
 # individual LLs sum up to total model LL
 sum(llcont(mod));logLik(mod)[1]
 }
-#' @importFrom sandwich estfun
 }
 \author{
 Thomas Hielscher
