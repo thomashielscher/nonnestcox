@@ -14,7 +14,6 @@
 #' # individual LLs sum up to total model LL
 #' sum(llcont(mod));logLik(mod)[1]
 #' }
-#' #' @importFrom sandwich estfun
 #' @export
 
 llcont <- function(x, ...) UseMethod("llcont")
