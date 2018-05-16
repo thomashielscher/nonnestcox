@@ -15,7 +15,6 @@
 #' sum(llcont(mod));logLik(mod)[1]
 #' }
 #' #' @importFrom sandwich estfun
-#' @importFrom plyr ddply
 #' @export
 
 llcont <- function(x, ...) UseMethod("llcont")
@@ -32,7 +31,7 @@ llcont.coxph <- function(object) {
 
   for (i in 2:nrow(tmpdat)) if(tmpdat$time[i]==tmpdat$time[i-1]) tmpdat$cumelp[i] <- tmpdat$cumelp[i-1]
 
-  tmpdat         <- ddply(tmpdat, .(time), mutate, corr=sum(elp[status==1]), weight=pmax(0,cumsum(status)-1)/pmax(1,sum(status)))
+  tmpdat         <- plyr::ddply(tmpdat, .(time), mutate, corr=sum(elp[status==1]), weight=pmax(0,cumsum(status)-1)/pmax(1,sum(status)))
   tmpdat$cumelp  <- tmpdat$cumelp - tmpdat$weight * tmpdat$corr
   tmpdat$lli     <- ifelse(tmpdat$status==1, log(tmpdat$elp/tmpdat$cumelp), 0)
   return(tmpdat$lli)

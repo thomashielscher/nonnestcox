@@ -22,9 +22,6 @@
 #' plrtest(mod2, mod3, nested=F)
 #' }
 #'
-#' @importFrom survival logLik
-#' @importFrom CompQuadForm imhof
-#' @importFrom sandwich estfun
 #' @export
 #'
 
@@ -56,9 +53,9 @@ plrtest <- function (object1, object2, nested = FALSE) {
   zero1 <- matrix(0,p1,p2)
   zero2 <- matrix(0,p2,p1)
   # score matrix
-  S1  <- matrix(crossprod(estfun(object1))/n, nrow(I1), nrow(I1))
-  S2  <- matrix(crossprod(estfun(object2))/n, nrow(I2), nrow(I2))
-  S12 <- crossprod(estfun(object1), estfun(object2))/n
+  S1  <- matrix(crossprod(sandwich::estfun(object1))/n, nrow(I1), nrow(I1))
+  S2  <- matrix(crossprod(sandwich::estfun(object2))/n, nrow(I2), nrow(I2))
+  S12 <- crossprod(sandwich::estfun(object1), sandwich::estfun(object2))/n
   S21 <- t(S12)
   ### composite matrices
   # Sigma12
@@ -84,15 +81,15 @@ plrtest <- function (object1, object2, nested = FALSE) {
   lp1      <- drop(z1 %*% coef(object1))
   lp2      <- drop(z2 %*% coef(object2))
   varlp    <- (n - 1)/n  * var(lp1 - lp2)
-  pOmega1  <- pmax(0,imhof(n*varlp, eigenPSI)$Qq)
+  pOmega1  <- pmax(0,CompQuadForm::imhof(n*varlp, eigenPSI)$Qq)
 
   ### test statistic for difference in hazards using Vuong approach based on LLi
   varll    <- (n - 1)/n * var(llA - llB)
-  pOmega2  <- pmax(0,imhof(n*varll, eigenPHI^2)$Qq)
+  pOmega2  <- pmax(0,CompQuadForm::imhof(n*varll, eigenPHI^2)$Qq)
 
   if (nested) {
      teststat  <- 2*lr
-     pLRTAB    <- pmax(0,imhof(teststat, eigenPHI)$Qq)
+     pLRTAB    <- pmax(0,CompQuadForm::imhof(teststat, eigenPHI)$Qq)
      pLRT      <- anova(object1, object2)[2,4]
   }
 
