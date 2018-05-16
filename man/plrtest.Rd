@@ -22,6 +22,7 @@ Partial Likelihood Ratio Test for non-nested \code{coxph} models
 \examples{
 \dontrun{
 ### example data set from Fine paper, section 5
+require("survival")
 require("randomForestSRC")
 data(pbc)
 pbc  <- subset(pbc, !is.na(treatment)) # 312 randomized patients

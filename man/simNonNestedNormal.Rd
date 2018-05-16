@@ -25,6 +25,7 @@ simulations with two gaussian distributed predictors
 }
 \examples{
 \dontrun{
+require("survival")
 require("lava")
 require("compareC")
 # setup

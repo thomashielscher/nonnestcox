@@ -8,6 +8,7 @@
 #' @return list
 #' @examples
 #' \dontrun{
+#' require("survival")
 #' require("lava")
 #' require("compareC")
 #' # setup
