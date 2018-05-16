@@ -14,7 +14,7 @@
 #' # individual LLs sum up to total model LL
 #' sum(llcont(mod));logLik(mod)[1]
 #' }
-#' @importFrom plyr ddply ldply llply .
+#' @importFrom plyr ddply ldply llply mutate .
 #' @export
 
 llcont <- function(x, ...) UseMethod("llcont")
