@@ -2,7 +2,7 @@
 #'
 #' @author Thomas Hielscher
 #' @param model \code{coxph} model with \code{x=T}
-#' @details ties are handled according to Efron 
+#' @details ties are handled according to Efron
 #' @return a vector of individual likelihoods, individuals are sorted by event time
 #' @examples
 #' \dontrun{
@@ -11,9 +11,11 @@
 #' data(pbc)
 #' pbc <- subset(pbc, !is.na(treatment))
 #' mod <- coxph(Surv(days, status) ~ age + albumin + bili + edema + prothrombin, data=pbc,  x=T)
-#' # individual LLs sum up to total model LL 
+#' # individual LLs sum up to total model LL
 #' sum(llcont(mod));logLik(mod)[1]
 #' }
+#' #' @importFrom sandwich estfun
+#' @importFrom plyr ddply
 #' @export
 
 llcont <- function(x, ...) UseMethod("llcont")
@@ -21,15 +23,15 @@ llcont <- function(x, ...) UseMethod("llcont")
 #' @export
 
 llcont.coxph <- function(object) {
-  
+
   if (is.null(object$x)) stop("coxph object without x=T option fitted")
-  
+
   tmpdat         <- data.frame(time=object$y[,1], status=object$y[,2], elp=exp(drop(object$x %*% coef(object))))
   tmpdat         <- tmpdat[order(tmpdat$time),]
   tmpdat$cumelp  <- rev(cumsum(rev(tmpdat$elp)))
-  
+
   for (i in 2:nrow(tmpdat)) if(tmpdat$time[i]==tmpdat$time[i-1]) tmpdat$cumelp[i] <- tmpdat$cumelp[i-1]
-  
+
   tmpdat         <- ddply(tmpdat, .(time), mutate, corr=sum(elp[status==1]), weight=pmax(0,cumsum(status)-1)/pmax(1,sum(status)))
   tmpdat$cumelp  <- tmpdat$cumelp - tmpdat$weight * tmpdat$corr
   tmpdat$lli     <- ifelse(tmpdat$status==1, log(tmpdat$elp/tmpdat$cumelp), 0)
