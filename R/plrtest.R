@@ -1,0 +1,107 @@
+#' Partial Likelihood Ratio Test for non-nested \code{coxph} models
+#'
+#' @author Thomas Hielscher
+#' @param object1 \code{coxph} model with \code{x=T}
+#' @param object2 \code{coxph} model with \code{x=T}, based on the identical data and order of observations as for \code{object1}
+#' @param nested  specify if models are nested, default ist \code{FALSE}
+#' @return a object of class \code{finetest}
+#' @references Fine J.P., Comparing nonnested Cox models, Biometrika (2002), 89, 3, 635-647.
+#' @references Vuong Q.H., Likelihood Ratio Tests for Model Selection and Non-Nested Hypotheses, Econometrika (1989), 57, 2, 307-333.
+#' @references Merkle E.C. and You D., Testing Nonnested Structural Equation Models, Psychological Methods (2016), 21, 2, 151-163.
+#' @references P. Duchesne, P. Lafaye de Micheaux, Computing the distribution of quadratic forms: Further comparisons between the Liu-Tang-Zhang approximation and exact methods, Computational Statistics and Data Analysis, Volume 54, (2010), 858-862
+#' @examples
+#' \dontrun{
+#' ### example data set from Fine paper, section 5
+#' require("randomForestSRC")
+#' data(pbc)
+#' pbc  <- subset(pbc, !is.na(treatment)) # 312 randomized patients
+#' mod1 <- coxph(Surv(days, status) ~ age, data=pbc, ties = "efron", x=T)
+#' mod2 <- coxph(Surv(days, status) ~ age + log(albumin) + log(bili) + edema + log(prothrombin), data=pbc, x=T)
+#' mod3 <- coxph(Surv(days, status) ~ age + albumin + bili + edema + prothrombin, data=pbc,  x=T)
+#' plrtest(mod1, mod3, nested=T) 
+#' plrtest(mod2, mod3, nested=F) 
+#' }
+#' @export
+#' 
+
+plrtest <- function (object1, object2, nested = FALSE) {
+  
+  if (is.null(object1$x) | is.null(object2$x)) stop("coxph object without x=T option fitted")
+  
+  if (nested) {
+    if (logLik(object2)[1] > logLik(object1)[1]) {
+      tmp     <- object1
+      object1 <- object2
+      object2 <- tmp
+    }
+  }
+  
+  llA <- llcont(object1)
+  llB <- llcont(object2)
+  lr  <- sum(llA - llB)
+  
+  n   <- length(llA)
+  z1  <- object1$x
+  z2  <- object2$x
+  p1  <- ncol(z1)
+  p2  <- ncol(z2)
+  
+  # information matrix
+  I1    <- chol2inv(chol(n * vcov(object1))) 
+  I2    <- chol2inv(chol(n * vcov(object2)))
+  zero1 <- matrix(0,p1,p2) 
+  zero2 <- matrix(0,p2,p1)
+  # score matrix
+  S1  <- matrix(crossprod(estfun(object1))/n, nrow(I1), nrow(I1)) 
+  S2  <- matrix(crossprod(estfun(object2))/n, nrow(I2), nrow(I2))
+  S12 <- crossprod(estfun(object1), estfun(object2))/n 
+  S21 <- t(S12)
+  ### composite matrices
+  # Sigma12
+  Sigma12 <- cbind(rbind(S1, S21), rbind(S12, S2))
+  # K12
+  K12    <- cbind(rbind(I1, zero2), rbind(zero1, I2))
+  K12inv <- chol2inv(chol(K12))
+
+  # initialize p-values
+  pLRTA <- pLRTB <- pLRTAB <- pLRT <- pOmega1 <- pOmega2 <- NA
+  
+  ### theorem 1, Fine
+  Itilde    <- diag(c(rep(1,p1),rep(-1,p2)), ncol=p1+p2, nrow=p1+p2)
+  A12       <- Itilde %*% Sigma12 %*% K12inv # -W from Vuong paper
+  eigenPHI  <- sort(Re(eigen(A12, only.values = TRUE)$values))
+  
+  ### theorem 3, Fine
+  J        <- (n/(n-1))* cbind(rbind(var(z1), -cov(z2,z1)), rbind(-cov(z1,z2), var(z2)))
+  B12      <- J %*% K12inv  %*% Sigma12 %*% K12inv
+  eigenPSI <- sort(Re(eigen(B12,only.values = TRUE)$values))
+  
+  # test statistic for difference in hazards using linear predictor
+  lp1      <- drop(z1 %*% coef(object1)) 
+  lp2      <- drop(z2 %*% coef(object2)) 
+  varlp    <- (n - 1)/n  * var(lp1 - lp2)
+  pOmega1  <- pmax(0,imhof(n*varlp, eigenPSI)$Qq)
+  
+  ### test statistic for difference in hazards using Vuong approach based on LLi
+  varll    <- (n - 1)/n * var(llA - llB)
+  pOmega2  <- pmax(0,imhof(n*varll, eigenPHI^2)$Qq) 
+  
+  if (nested) {
+     teststat  <- 2*lr
+     pLRTAB    <- pmax(0,imhof(teststat, eigenPHI)$Qq)
+     pLRT      <- anova(object1, object2)[2,4]
+  }
+  
+  ### theorem 2, Fine
+  if (!nested) {
+     teststat <- (1/sqrt(n)) * lr/sqrt(varll)
+     pLRTA    <- pnorm(teststat, lower.tail = FALSE)
+     pLRTB    <- pnorm(teststat)
+     pLRTAB   <- 2 * min(pLRTA, pLRTB) # two-sided
+  }
+  
+  rval <- list(pOmega1 = pOmega1, pOmega2 = pOmega2, LRTstat = teststat, pLRT=pLRT, pLRTA= pLRTA, pLRTB = pLRTB, pLRTAB=pLRTAB ,nested = nested)
+  class(rval) <- "finetest"
+  return(rval)
+}
+
