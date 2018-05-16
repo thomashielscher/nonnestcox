@@ -28,9 +28,10 @@ pbc  <- subset(pbc, !is.na(treatment)) # 312 randomized patients
 mod1 <- coxph(Surv(days, status) ~ age, data=pbc, ties = "efron", x=T)
 mod2 <- coxph(Surv(days, status) ~ age + log(albumin) + log(bili) + edema + log(prothrombin), data=pbc, x=T)
 mod3 <- coxph(Surv(days, status) ~ age + albumin + bili + edema + prothrombin, data=pbc,  x=T)
-plrtest(mod1, mod3, nested=T) 
-plrtest(mod2, mod3, nested=F) 
+plrtest(mod1, mod3, nested=T)
+plrtest(mod2, mod3, nested=F)
 }
+
 }
 \references{
 Fine J.P., Comparing nonnested Cox models, Biometrika (2002), 89, 3, 635-647.

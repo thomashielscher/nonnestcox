@@ -25,9 +25,10 @@ require("randomForestSRC")
 data(pbc)
 pbc <- subset(pbc, !is.na(treatment))
 mod <- coxph(Surv(days, status) ~ age + albumin + bili + edema + prothrombin, data=pbc,  x=T)
-# individual LLs sum up to total model LL 
+# individual LLs sum up to total model LL
 sum(llcont(mod));logLik(mod)[1]
 }
+#' @importFrom sandwich estfun
 }
 \author{
 Thomas Hielscher

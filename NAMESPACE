@@ -3,3 +3,5 @@
 S3method(llcont,coxph)
 export(llcont)
 export(plrtest)
+export(simNonNestedBinomial)
+export(simNonNestedNormal)

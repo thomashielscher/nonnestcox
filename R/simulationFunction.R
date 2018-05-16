@@ -13,10 +13,11 @@
 #' # setup
 #' simmat  <- expand.grid(n=c(100, 200, 350), beta1=c(0,0.5,1),beta2=c(0,1))
 #' # simulations w/o censoring
-#' simres1 <- t(apply(simmat, 1, function(d) unlist(simNonNested(B=10, n=d[1], beta1=d[2], beta2=d[3], censrate=0))))
+#' simres1 <- t(apply(simmat, 1, function(d) unlist(simNonNestedNormal(B=10, n=d[1], beta1=d[2], beta2=d[3], censrate=0))))
 #' simres1 <- cbind(simmat,simres1)
 #' }
 #'
+#' @export
 #'
 
 simNonNestedNormal <- function(B, n, beta1, beta2, censrate=0) {
@@ -98,6 +99,29 @@ simNonNestedNormal <- function(B, n, beta1, beta2, censrate=0) {
 
    return(list(B1vsB1B2=resnest, B1vsB2=resnonnest, logB1B2vsB1B2=resnonnestlog, censProp=resCens))
 }
+
+#' simulations with two binomial distributed predictors
+#'
+#' @param B simulations runs
+#' @param n sample size
+#' @param beta1 first coefficient
+#' @param beta2 second coefficient
+#' @param censrate censoring rate for exponential model
+#' @return list
+#' @examples
+#' \dontrun{
+#' require("lava")
+#' require("compareC")
+#' # setup
+#' simmat  <- expand.grid(n=c(100, 200, 350), beta1=c(0,0.5,1),beta2=c(0,1))
+#' # simulations w/o censoring
+#' simres1 <- t(apply(simmat, 1, function(d) unlist(simNonNestedBinomial(B=10, n=d[1], beta1=d[2], beta2=d[3], censrate=0))))
+#' simres1 <- cbind(simmat,simres1)
+#' }
+#'
+#'
+#' @export
+
 
 simNonNestedBinomial <- function(B, n, beta1, beta2, censrate=0) {
 
