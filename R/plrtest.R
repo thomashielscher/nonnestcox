@@ -8,6 +8,7 @@
 #' @references Fine J.P., Comparing nonnested Cox models, Biometrika (2002), 89, 3, 635-647.
 #' @references Vuong Q.H., Likelihood Ratio Tests for Model Selection and Non-Nested Hypotheses, Econometrika (1989), 57, 2, 307-333.
 #' @references Merkle E.C. and You D., Testing Nonnested Structural Equation Models, Psychological Methods (2016), 21, 2, 151-163.
+#' @references Edgar Merkle and Dongjun You (2018). nonnest2: Tests of Non-Nested Models. R package version 0.5-1.
 #' @references P. Duchesne, P. Lafaye de Micheaux, Computing the distribution of quadratic forms: Further comparisons between the Liu-Tang-Zhang approximation and exact methods, Computational Statistics and Data Analysis, Volume 54, (2010), 858-862
 #' @examples
 #' \dontrun{
