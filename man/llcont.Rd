@@ -22,10 +22,7 @@ ties are handled according to Efron
 \dontrun{
 ### example data set from Fine paper, section 5
 require("survival")
-require("randomForestSRC")
-data(pbc)
-pbc <- subset(pbc, !is.na(treatment))
-mod <- coxph(Surv(days, status) ~ age + albumin + bili + edema + prothrombin, data=pbc,  x=T)
+mod <- coxph(Surv(time, status==2) ~ age + log(albumin) + log(bili) + edema + log(protime), data=subset(pbc, !is.na(trt)),  x=T)
 # individual LLs sum up to total model LL
 sum(llcont(mod));logLik(mod)[1]
 }

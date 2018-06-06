@@ -10,12 +10,11 @@
 #' \dontrun{
 #' require("survival")
 #' require("lava")
-#' require("compareC")
 #' # setup
 #' simmat  <- expand.grid(n=c(100, 200, 350), beta1=c(0,0.5,1),beta2=c(0,1))
 #' # simulations w/o censoring
-#' simres1 <- t(apply(simmat, 1, function(d) unlist(simNonNestedNormal(B=10, n=d[1], beta1=d[2], beta2=d[3], censrate=0))))
-#' simres1 <- cbind(simmat,simres1)
+#' simres <- t(apply(simmat, 1, function(d) unlist(simNonNestedNormal(B=10, n=d[1], beta1=d[2], beta2=d[3], censrate=0))))
+#' simres <- cbind(simmat,simres)
 #' }
 #'
 #' @export
@@ -24,7 +23,7 @@
 simNonNestedNormal <- function(B, n, beta1, beta2, censrate=0) {
 
    resultsNonN <- resultsN <- resultsNonNlog <- list()
-   censprob <- resultsCN <- resultsCNonN <- resultsCNonNlog <- rep(NA,B)
+   censprob <- rep(NA,B)
 
    ### simulation set-up
    m <- lvm()
@@ -57,10 +56,6 @@ simNonNestedNormal <- function(B, n, beta1, beta2, censrate=0) {
       resultsN[[runs]]       <- unlist(plrtest(m1, m3, nested=T)[1:7])
       resultsNonN[[runs]]    <- unlist(plrtest(m1, m2, nested=F)[1:7])
       resultsNonNlog[[runs]] <- unlist(plrtest(m4, m3, nested=F)[1:7])
-      # competitor: test on difference in c-index, two-sided
-      resultsCN[runs]        <- with(simdat, compareC(time,status, -m1$linear.predictors, -m3$linear.predictors))$pval
-      resultsCNonN[runs]     <- with(simdat, compareC(time,status, -m1$linear.predictors, -m2$linear.predictors))$pval
-      resultsCNonNlog[runs]  <- with(simdat, compareC(time,status, -m4$linear.predictors, -m3$linear.predictors))$pval
       # censoring
       censprob[runs]         <- sum(1 - simdat$status)/n
    }
@@ -75,28 +70,23 @@ simNonNestedNormal <- function(B, n, beta1, beta2, censrate=0) {
    resCens <- mean(censprob, na.rm=T)
 
    ### power
-   # c-index
-   cN       <- sum(as.numeric(resultsCN < 0.05), na.rm=T)/length(resultsCN[!is.na(resultsCN)])
-   cNonN    <- sum(as.numeric(resultsCNonN < 0.05), na.rm=T)/length(resultsCNonN[!is.na(resultsCNonN)])
-   cNonNlog <- sum(as.numeric(resultsCNonNlog < 0.05), na.rm=T)/length(resultsCNonNlog[!is.na(resultsCNonNlog)])
-
    # nested
-   H0r <- sum(as.numeric(resN$pLRTAB < 0.05))/B
-   H0  <- sum(as.numeric(resN$pLRT < 0.05))/B
-   resnest <- c("H0 robust"=H0r, "H0 classical"=H0, "cindex"=cN)
+   H0r <- powerfunc(resN$pLRTAB)
+   H0  <- powerfunc(resN$pLRT)
+   resnest <- c("H0 robust"=H0r, "H0 classical"=H0)
 
    # non-nested
-   H1    <- sum(as.numeric(resNonN$pOmega1 < 0.05))/B
-   H1b   <- sum(as.numeric(resNonN$pOmega2 < 0.05))/B
-   H0    <- sum(as.numeric(resNonN$pLRTAB < 0.05))/B
-   seqH0 <- sum(as.numeric(pmax(resNonN$pOmega1, resNonN$pLRTAB) < 0.05))/B
-   resnonnest <- c("H1 Fine"=H1,"H1 Vuong"=H1b,"H0"=H0,"H0seq"= seqH0,"cindex"=cNonN)
+   H1    <- powerfunc(resNonN$pOmega1)
+   H1b   <- powerfunc(resNonN$pOmega2)
+   H0    <- powerfunc(resNonN$pLRTAB)
+   seqH0 <- powerfunc(pmax(resNonN$pOmega1, resNonN$pLRTAB))
+   resnonnest <- c("H1 Fine"=H1,"H1 Vuong"=H1b,"H0"=H0,"H0seq"= seqH0)
 
-   H1    <- sum(as.numeric(resNonNlog$pOmega1 < 0.05))/B
-   H1b   <- sum(as.numeric(resNonNlog$pOmega2 < 0.05))/B
-   H0    <- sum(as.numeric(resNonNlog$pLRTAB < 0.05))/B
-   seqH0 <- sum(as.numeric(pmax(resNonNlog$pOmega1, resNonNlog$pLRTAB) < 0.05))/B
-   resnonnestlog <- c("H1 Fine"=H1,"H1 Vuong"=H1b,"H0"=H0,"H0seq"= seqH0,"cindex"=cNonNlog)
+   H1    <- powerfunc(resNonNlog$pOmega1)
+   H1b   <- powerfunc(resNonNlog$pOmega2)
+   H0    <- powerfunc(resNonNlog$pLRTAB)
+   seqH0 <- powerfunc(pmax(resNonNlog$pOmega1, resNonNlog$pLRTAB))
+   resnonnestlog <- c("H1 Fine"=H1,"H1 Vuong"=H1b,"H0"=H0,"H0seq"= seqH0)
 
    return(list(B1vsB1B2=resnest, B1vsB2=resnonnest, logB1B2vsB1B2=resnonnestlog, censProp=resCens))
 }
@@ -112,12 +102,11 @@ simNonNestedNormal <- function(B, n, beta1, beta2, censrate=0) {
 #' @examples
 #' \dontrun{
 #' require("lava")
-#' require("compareC")
 #' # setup
 #' simmat  <- expand.grid(n=c(100, 200, 350), beta1=c(0,0.5,1),beta2=c(0,1))
 #' # simulations w/o censoring
-#' simres1 <- t(apply(simmat, 1, function(d) unlist(simNonNestedBinomial(B=10, n=d[1], beta1=d[2], beta2=d[3], censrate=0))))
-#' simres1 <- cbind(simmat,simres1)
+#' simres <- t(apply(simmat, 1, function(d) unlist(simNonNestedBinomial(B=10, n=d[1], beta1=d[2], beta2=d[3], censrate=0))))
+#' simres <- cbind(simmat,simres)
 #' }
 #'
 #'
@@ -127,7 +116,7 @@ simNonNestedNormal <- function(B, n, beta1, beta2, censrate=0) {
 simNonNestedBinomial <- function(B, n, beta1, beta2, censrate=0) {
 
   resultsNonN <- resultsN <- resultsNonNlog <- list()
-  censprob <- resultsCN <- resultsCNonN <- resultsCNonNlog <- rep(NA,B)
+  censprob <- rep(NA,B)
 
   ### simulation set-up
   m <- lvm()
@@ -157,9 +146,6 @@ simNonNestedBinomial <- function(B, n, beta1, beta2, censrate=0) {
     # tests
     resultsN[[runs]]       <- unlist(plrtest(m1, m3, nested=T)[1:7])
     resultsNonN[[runs]]    <- unlist(plrtest(m1, m2, nested=F)[1:7])
-    # competitor: test on difference in c-index, two-sided
-    resultsCN[runs]        <- with(simdat, compareC(time,status, -m1$linear.predictors, -m3$linear.predictors))$pval
-    resultsCNonN[runs]     <- with(simdat, compareC(time,status, -m1$linear.predictors, -m2$linear.predictors))$pval
     # censoring
     censprob[runs]         <- sum(1 - simdat$status)/n
   }
@@ -173,21 +159,19 @@ simNonNestedBinomial <- function(B, n, beta1, beta2, censrate=0) {
   resCens <- mean(censprob, na.rm=T)
 
   ### power
-  # c-index
-  cN       <- sum(as.numeric(resultsCN < 0.05), na.rm=T)/length(resultsCN[!is.na(resultsCN)])
-  cNonN    <- sum(as.numeric(resultsCNonN < 0.05), na.rm=T)/length(resultsCNonN[!is.na(resultsCNonN)])
-
   # nested
-  H0r <- sum(as.numeric(resN$pLRTAB < 0.05))/B
-  H0  <- sum(as.numeric(resN$pLRT < 0.05))/B
-  resnest <- c("H0 robust"=H0r, "H0 classical"=H0, "cindex"=cN)
+  H0r <- powerfunc(resN$pLRTAB)
+  H0  <- powerfunc(resN$pLRT)
+  resnest <- c("H0 robust"=H0r, "H0 classical"=H0)
 
   # non-nested
-  H1    <- sum(as.numeric(resNonN$pOmega1 < 0.05))/B
-  H1b   <- sum(as.numeric(resNonN$pOmega2 < 0.05))/B
-  H0    <- sum(as.numeric(resNonN$pLRTAB < 0.05))/B
-  seqH0 <- sum(as.numeric(pmax(resNonN$pOmega1, resNonN$pLRTAB) < 0.05))/B
-  resnonnest <- c("H1 Fine"=H1,"H1 Vuong"=H1b,"H0"=H0,"H0seq"= seqH0,"cindex"=cNonN)
+  H1    <- powerfunc(resNonN$pOmega1)
+  H1b   <- powerfunc(resNonN$pOmega2)
+  H0    <- powerfunc(resNonN$pLRTAB)
+  seqH0 <- powerfunc(pmax(resNonN$pOmega1, resNonN$pLRTAB))
+  resnonnest <- c("H1 Fine"=H1,"H1 Vuong"=H1b,"H0"=H0,"H0seq"= seqH0)
 
   return(list(B1vsB1B2=resnest, B1vsB2=resnonnest, censProp=resCens))
 }
+
+powerfunc <- function(x) sum(as.numeric(x < 0.05))/length(x[!is.na(x)])

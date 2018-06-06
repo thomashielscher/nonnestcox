@@ -23,14 +23,12 @@ Partial Likelihood Ratio Test for non-nested \code{coxph} models
 \dontrun{
 ### example data set from Fine paper, section 5
 require("survival")
-require("randomForestSRC")
-data(pbc)
-pbc  <- subset(pbc, !is.na(treatment)) # 312 randomized patients
-mod1 <- coxph(Surv(days, status) ~ age, data=pbc, ties = "efron", x=T)
-mod2 <- coxph(Surv(days, status) ~ age + log(albumin) + log(bili) + edema + log(prothrombin), data=pbc, x=T)
-mod3 <- coxph(Surv(days, status) ~ age + albumin + bili + edema + prothrombin, data=pbc,  x=T)
-plrtest(mod1, mod3, nested=T)
-plrtest(mod2, mod3, nested=F)
+pbc  <- subset(pbc, !is.na(trt))
+mod1 <- coxph(Surv(time, status==2) ~ age, data=pbc, x=T)
+mod2 <- coxph(Surv(time, status==2) ~ age + albumin + bili + edema + protime, data=pbc,  x=T)
+mod3 <- coxph(Surv(time, status==2) ~ age + log(albumin) + log(bili) + edema + log(protime), data=pbc, x=T)
+plrtest(mod3, mod2, nested=F) # non-nested models
+plrtest(mod3, mod1, nested=T) # nested models
 }
 
 }
@@ -40,6 +38,8 @@ Fine J.P., Comparing nonnested Cox models, Biometrika (2002), 89, 3, 635-647.
 Vuong Q.H., Likelihood Ratio Tests for Model Selection and Non-Nested Hypotheses, Econometrika (1989), 57, 2, 307-333.
 
 Merkle E.C. and You D., Testing Nonnested Structural Equation Models, Psychological Methods (2016), 21, 2, 151-163.
+
+Edgar Merkle and Dongjun You (2018). nonnest2: Tests of Non-Nested Models. R package version 0.5-1.
 
 P. Duchesne, P. Lafaye de Micheaux, Computing the distribution of quadratic forms: Further comparisons between the Liu-Tang-Zhang approximation and exact methods, Computational Statistics and Data Analysis, Volume 54, (2010), 858-862
 }

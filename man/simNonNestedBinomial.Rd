@@ -26,12 +26,11 @@ simulations with two binomial distributed predictors
 \examples{
 \dontrun{
 require("lava")
-require("compareC")
 # setup
 simmat  <- expand.grid(n=c(100, 200, 350), beta1=c(0,0.5,1),beta2=c(0,1))
 # simulations w/o censoring
-simres1 <- t(apply(simmat, 1, function(d) unlist(simNonNestedBinomial(B=10, n=d[1], beta1=d[2], beta2=d[3], censrate=0))))
-simres1 <- cbind(simmat,simres1)
+simres <- t(apply(simmat, 1, function(d) unlist(simNonNestedBinomial(B=10, n=d[1], beta1=d[2], beta2=d[3], censrate=0))))
+simres <- cbind(simmat,simres)
 }
 
 
