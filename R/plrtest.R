@@ -14,14 +14,12 @@
 #' \dontrun{
 #' ### example data set from Fine paper, section 5
 #' require("survival")
-#' require("randomForestSRC")
-#' data(pbc)
-#' pbc  <- subset(pbc, !is.na(treatment)) # 312 randomized patients
-#' mod1 <- coxph(Surv(days, status) ~ age, data=pbc, ties = "efron", x=T)
-#' mod2 <- coxph(Surv(days, status) ~ age + log(albumin) + log(bili) + edema + log(prothrombin), data=pbc, x=T)
-#' mod3 <- coxph(Surv(days, status) ~ age + albumin + bili + edema + prothrombin, data=pbc,  x=T)
-#' plrtest(mod1, mod3, nested=T)
-#' plrtest(mod2, mod3, nested=F)
+#' pbc  <- subset(pbc, !is.na(trt))
+#' mod1 <- coxph(Surv(time, status==2) ~ age, data=pbc, x=T)
+#' mod2 <- coxph(Surv(time, status==2) ~ age + albumin + bili + edema + protime, data=pbc,  x=T)
+#' mod3 <- coxph(Surv(time, status==2) ~ age + log(albumin) + log(bili) + edema + log(protime), data=pbc, x=T)
+#' plrtest(mod3, mod2, nested=F) # non-nested models
+#' plrtest(mod3, mod1, nested=T) # nested models
 #' }
 #'
 #' @export
