@@ -4,12 +4,14 @@
 #' @param object1 \code{coxph} model with \code{x=T}
 #' @param object2 \code{coxph} model with \code{x=T}, based on the identical data and order of observations as for \code{object1}
 #' @param nested  specify if models are nested, default ist \code{FALSE}
+#' @param adjusted  specify if test statistic for non-nested models should be adjusted for different complexities of the models using BIC-type adjustment (p/2)log n - (q/2)log n, default ist \code{FALSE}
 #' @return a object of class \code{finetest}
 #' @references Fine J.P., Comparing nonnested Cox models, Biometrika (2002), 89, 3, 635-647.
 #' @references Vuong Q.H., Likelihood Ratio Tests for Model Selection and Non-Nested Hypotheses, Econometrika (1989), 57, 2, 307-333.
 #' @references Merkle E.C. and You D., Testing Nonnested Structural Equation Models, Psychological Methods (2016), 21, 2, 151-163.
 #' @references Edgar Merkle and Dongjun You (2018). nonnest2: Tests of Non-Nested Models. R package version 0.5-1.
 #' @references P. Duchesne, P. Lafaye de Micheaux, Computing the distribution of quadratic forms: Further comparisons between the Liu-Tang-Zhang approximation and exact methods, Computational Statistics and Data Analysis, Volume 54, (2010), 858-862
+#' @references Schwarz G. (1978). Estimating the Dimension of a Model. Annals of Statistics, 6, 461.464.
 #' @examples
 #' \dontrun{
 #' ### example data set from Fine paper, section 5
@@ -25,7 +27,7 @@
 #' @export
 #'
 
-plrtest <- function (object1, object2, nested = FALSE) {
+plrtest <- function (object1, object2, nested = FALSE, adjusted=FALSE) {
 
   if (is.null(object1$x) | is.null(object2$x)) stop("coxph object without x=T option fitted")
 
@@ -95,10 +97,11 @@ plrtest <- function (object1, object2, nested = FALSE) {
 
   ### theorem 2, Fine
   if (!nested) {
-     teststat <- (1/sqrt(n)) * lr/sqrt(varll)
-     pLRTA    <- pnorm(teststat, lower.tail = FALSE)
-     pLRTB    <- pnorm(teststat)
-     pLRTAB   <- 2 * min(pLRTA, pLRTB) # two-sided
+     if (adjusted) lr <- lr - (p1/2*log(n) - p2/2*log(n))
+     teststat         <- (1/sqrt(n)) * lr/sqrt(varll)
+     pLRTA            <- pnorm(teststat, lower.tail = FALSE)
+     pLRTB            <- pnorm(teststat)
+     pLRTAB           <- 2 * min(pLRTA, pLRTB) # two-sided
   }
 
   rval <- list(pOmega1 = pOmega1, pOmega2 = pOmega2, LRTstat = teststat, pLRT=pLRT, pLRTA= pLRTA, pLRTB = pLRTB, pLRTAB=pLRTAB ,nested = nested)

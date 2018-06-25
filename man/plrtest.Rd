@@ -4,7 +4,7 @@
 \alias{plrtest}
 \title{Partial Likelihood Ratio Test for non-nested \code{coxph} models}
 \usage{
-plrtest(object1, object2, nested = FALSE)
+plrtest(object1, object2, nested = FALSE, adjusted = FALSE)
 }
 \arguments{
 \item{object1}{\code{coxph} model with \code{x=T}}
@@ -12,6 +12,8 @@ plrtest(object1, object2, nested = FALSE)
 \item{object2}{\code{coxph} model with \code{x=T}, based on the identical data and order of observations as for \code{object1}}
 
 \item{nested}{specify if models are nested, default ist \code{FALSE}}
+
+\item{adjusted}{specify if test statistic for non-nested models should be adjusted for different complexities of the models using BIC-type adjustment (p/2)log n - (q/2)log n, default ist \code{FALSE}}
 }
 \value{
 a object of class \code{finetest}
@@ -42,6 +44,8 @@ Merkle E.C. and You D., Testing Nonnested Structural Equation Models, Psychologi
 Edgar Merkle and Dongjun You (2018). nonnest2: Tests of Non-Nested Models. R package version 0.5-1.
 
 P. Duchesne, P. Lafaye de Micheaux, Computing the distribution of quadratic forms: Further comparisons between the Liu-Tang-Zhang approximation and exact methods, Computational Statistics and Data Analysis, Volume 54, (2010), 858-862
+
+Schwarz G. (1978). Estimating the Dimension of a Model. Annals of Statistics, 6, 461.464.
 }
 \author{
 Thomas Hielscher
