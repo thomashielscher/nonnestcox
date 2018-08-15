@@ -3,7 +3,7 @@
 #' @author Thomas Hielscher
 #' @param model \code{coxph} model with \code{x=T}
 #' @details ties are handled according to Efron
-#' @return a vector of individual likelihoods, individuals are sorted by event time
+#' @return a vector of individual likelihoods
 #' @examples
 #' \dontrun{
 #' ### example data set from Fine paper, section 5
