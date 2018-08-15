@@ -31,6 +31,9 @@ plrtest <- function (object1, object2, nested = FALSE, adjusted=FALSE) {
 
   if (is.null(object1$x) | is.null(object2$x)) stop("coxph object without x=T option fitted")
 
+  # basic check on data
+  if (any(object1$y[,1]!=object2$y[,1]) | any(object1$y[,2]!=object2$y[,2])) stop("models not fitted on the same data or data not in the same order")
+
   if (nested) {
     if (logLik(object2)[1] > logLik(object1)[1]) {
       tmp     <- object1
