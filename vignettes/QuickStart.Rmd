@@ -1,0 +1,93 @@
+---
+title: "QuickStart"
+author: "Thomas Hielscher"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{QuickStart}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, warning = FALSE, message = FALSE, echo=TRUE, comment = "#>")
+```
+
+
+## Introduction
+
+This package provides an implementation of Fine's test for comparing non-nested Cox regression models for survival data (Fine, 2002, Biometrika). This test builds on Voung's methodology of comparing non-nested models (1989, Econometrica). The alternative hypothesis tested is whether one of two competing models is closer to the unknown true model.
+
+The package also includes the necessary test on distinguishability of competing models, using either the individual linear predictors as proposed by Fine (2002) or based on the individual likelihood contributions as proposed by Vuong (1989). The alternative likelihood-ratio test for nested models as proposed by Fine (2002) is implemented, too. 
+
+## Download
+
+```{r}
+devtools::install_github("thomashielscher/nonnestcox")
+```
+
+## Example
+
+Load the package and the necessary `survival` package. We use the same data set and candidate models as in Fine (2002) section 5,  consisting of 312 patients with primary biliary cirrhosis disease, with overall survival as endpoint.
+Model 1  includes age as only predictor, model 2 and 3 include age, albumin, bilirubin, oedema and prothrombin time as predictors, with the difference that albumin, bilirubin and prothrombin time were log-transformed in model 3. Thus, model 2 and 3 have the same dimension.
+
+```{r, results='markup'}
+library(nonnestcox)
+library(survival)
+
+pbc  <- subset(pbc, !is.na(trt))
+mod1 <- coxph(Surv(time, status==2) ~ age, data=pbc, x=T)
+mod2 <- coxph(Surv(time, status==2) ~ age + albumin + bili + edema + protime, data=pbc,  x=T)
+mod3 <- coxph(Surv(time, status==2) ~ age + log(albumin) + log(bili) + edema + log(protime), data=pbc, x=T)
+```
+
+AIC and partial log-likelihood of all models are as follows.
+```{r,results='markup'}
+AIC(mod1); AIC(mod2); AIC(mod3)
+logLik(mod1); logLik(mod2); logLik(mod3)
+```
+
+The individual log-likelihood contributions sum up to the model log-likelihood as they should be
+```{r, results='markup'}
+sum(llcont(mod3))
+logLik(mod3)[1]
+```
+
+# Nested Models
+
+Models 1 and 3 are nested. Models are clearly distinguishable with either type of test. 
+Classical and alternative likelihood-ratio test both indicate highly significant improvement of the larger model.
+
+```{r,results='markup'}
+plrtest(mod3, mod1, nested=T)
+```
+
+# Non-nested Models
+
+Models 2 and 3 are not nested. Models are clearly distinguishable with either type of test. 
+The likelihood-ratio test significantly favors the model with log-transformed predictors as shown in Fine (2002).
+
+```{r, results='markup'}
+plrtest(mod3, mod2, nested=F) 
+```
+
+For non-nested models with different numbers of parameters, the test statistic can be adjusted for the difference in model complexity using a BIC-type correction. Of course, the initial test on distinguishability of models is not affected. 
+
+```{r, results='markup'}
+mod5 <- coxph(Surv(time, status==2) ~ age, data=pbc,  x=T)
+mod6 <- coxph(Surv(time, status==2) ~ albumin + bili + edema + protime, data=pbc,  x=T)
+plrtest(mod6, mod5, nested=F)
+plrtest(mod6, mod5, nested=F, adjusted=T)
+```
+
+## Implementation
+
+Merkle et al (2016, Psychological Methods) apply Voung's test to structural equation models. The corresponding  R package `nonnest2` (Merkle and You, 2018) allows to compute Vuong's test for various regression models with a full likelihood. We built our package for Cox regression models in a similar structure.
+
+The function `llcont.coxph` computes individual contributions to the partial log-likelihood using Efron's method of handling ties, which is consistent with the default for the `coxph` function from the R package `survival`.
+
+The function `plrtest` does the actual testing. The Imhof method (Imhof, 1961) implemented in R package `CompQuadForm` (Duchesne et al, 2010) is used to compute the distribution function of the weighted sum of $\chi^2$ distributions for theorems 1 and 3 (Fine, 2002). In the call of `plrtest`, one only needs to provide two fitted `coxph` objects and specify whether the models are nested or not. It is important, that `coxph` is run with the option `x=T`. Both models need to be fitted with the same data, which might be an issue in case of missing data. 
+For non-nested models, one can adjust (option `adjusted=TRUE`) for the difference in the number of parameters in both models using the correction factor $p/2$ log $n$ - $q/2$ log $n$ (Vuong, 1989) which corresponds to the information criterion of Schwarz (1978). 
+
+The output of `plrtest` is a S3 object of class `finetest` for which a `print` function exists.
+
