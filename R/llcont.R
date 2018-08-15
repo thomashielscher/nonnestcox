@@ -22,8 +22,8 @@ llcont <- function(x, ...) UseMethod("llcont")
 llcont.coxph <- function(object) {
 
   if (is.null(object$x)) stop("coxph object without x=T option fitted")
-
-  tmpdat         <- data.frame(time=object$y[,1], status=object$y[,2], elp=exp(drop(object$x %*% coef(object))))
+  # save original ordering of data before calculations
+  tmpdat         <- data.frame(time=object$y[,1], status=object$y[,2], elp=exp(drop(object$x %*% coef(object))), ordering=1:nrow(tmpdat))
   tmpdat         <- tmpdat[order(tmpdat$time),]
   tmpdat$cumelp  <- rev(cumsum(rev(tmpdat$elp)))
 
@@ -32,6 +32,8 @@ llcont.coxph <- function(object) {
   tmpdat         <- ddply(tmpdat, .(time), mutate, corr=sum(elp[status==1]), weight=pmax(0,cumsum(status)-1)/pmax(1,sum(status)))
   tmpdat$cumelp  <- tmpdat$cumelp - tmpdat$weight * tmpdat$corr
   tmpdat$lli     <- ifelse(tmpdat$status==1, log(tmpdat$elp/tmpdat$cumelp), 0)
+  # restore original ordering
+  tmpdat         <- tmpdat[order(tmpdat$ordering),]
   return(tmpdat$lli)
 }
 
