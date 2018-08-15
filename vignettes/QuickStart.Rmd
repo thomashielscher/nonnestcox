@@ -16,7 +16,7 @@ knitr::opts_chunk$set(collapse = TRUE, warning = FALSE, message = FALSE, echo=TR
 
 ## Introduction
 
-This package provides an implementation of Fine's test for comparing non-nested Cox regression models for survival data (Fine, 2002, Biometrika). This test builds on Voung's methodology of comparing non-nested models (1989, Econometrica). The alternative hypothesis tested is whether one of two competing models is closer to the unknown true model.
+This package provides an implementation of Fine's test for comparing non-nested Cox regression models for survival data (Fine, 2002, Biometrika). This test builds on Voung's methodology of comparing non-nested models (1989, Econometrica). The alternative hypothesis tested is whether one of two competing models is closer to the unknown true model. Closeness is defined by the Kullback-Leibler distance.
 
 The package also includes the necessary test on distinguishability of competing models, using either the individual linear predictors as proposed by Fine (2002) or based on the individual likelihood contributions as proposed by Vuong (1989). The alternative likelihood-ratio test for nested models as proposed by Fine (2002) is implemented, too. 
 
@@ -53,7 +53,7 @@ sum(llcont(mod3))
 logLik(mod3)[1]
 ```
 
-# Nested Models
+### Nested Models
 
 Models 1 and 3 are nested. Models are clearly distinguishable with either type of test. 
 Classical and alternative likelihood-ratio test both indicate highly significant improvement of the larger model.
@@ -62,7 +62,7 @@ Classical and alternative likelihood-ratio test both indicate highly significant
 plrtest(mod3, mod1, nested=T)
 ```
 
-# Non-nested Models
+### Non-nested Models
 
 Models 2 and 3 are not nested. Models are clearly distinguishable with either type of test. 
 The likelihood-ratio test significantly favors the model with log-transformed predictors as shown in Fine (2002).
