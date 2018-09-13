@@ -23,9 +23,10 @@ llcont.coxph <- function(object) {
 
   if (is.null(object$x)) stop("coxph object without x=T option fitted")
   # save original ordering of data before calculations
-  tmpdat         <- data.frame(time=object$y[,1], status=object$y[,2], elp=exp(drop(object$x %*% coef(object))), ordering=1:nrow(tmpdat))
-  tmpdat         <- tmpdat[order(tmpdat$time),]
-  tmpdat$cumelp  <- rev(cumsum(rev(tmpdat$elp)))
+  tmpdat          <- data.frame(time=object$y[,1], status=object$y[,2], elp=exp(drop(object$x %*% coef(object))))
+  tmpdat$ordering <- 1:nrow(tmpdat)
+  tmpdat          <- tmpdat[order(tmpdat$time),]
+  tmpdat$cumelp   <- rev(cumsum(rev(tmpdat$elp)))
 
   for (i in 2:nrow(tmpdat)) if(tmpdat$time[i]==tmpdat$time[i-1]) tmpdat$cumelp[i] <- tmpdat$cumelp[i-1]
 
