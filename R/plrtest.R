@@ -101,7 +101,7 @@ plrtest <- function (object1, object2, nested = FALSE, adjusted=FALSE) {
   ### theorem 2, Fine
   if (!nested) {
      if (adjusted) {
-       lr <- lr - (p1/2*log(n) - p2/2*log(n))
+       lr <- lr - (log(object1$nevent)/2 * (p1 - p2))
      }
      teststat   <- (1/sqrt(n)) * lr/sqrt(varll)
      pLRTA      <- pnorm(teststat, lower.tail = FALSE)
