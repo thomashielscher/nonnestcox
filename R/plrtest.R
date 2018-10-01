@@ -4,7 +4,7 @@
 #' @param object1 \code{coxph} model with \code{x=T}
 #' @param object2 \code{coxph} model with \code{x=T}, based on the identical data and order of observations as for \code{object1}
 #' @param nested  specify if models are nested, default ist \code{FALSE}
-#' @param adjusted  specify if test statistic for non-nested models should be adjusted for different complexities of the models using BIC-type adjustment (p/2)log n - (q/2)log n, default ist \code{FALSE}
+#' @param adjusted  specify if test statistic for non-nested models should be adjusted for different complexities of the models using BIC-type adjustment (p/2)log n - (q/2)log n, but with number of events instead of number of observations. Default ist \code{FALSE}
 #' @return a object of class \code{finetest}
 #' @references Fine J.P., Comparing nonnested Cox models, Biometrika (2002), 89, 3, 635-647.
 #' @references Vuong Q.H., Likelihood Ratio Tests for Model Selection and Non-Nested Hypotheses, Econometrika (1989), 57, 2, 307-333.

@@ -86,8 +86,8 @@ Merkle et al (2016, Psychological Methods) apply Voung's test to structural equa
 
 The function `llcont.coxph` computes individual contributions to the partial log-likelihood using Efron's method of handling ties, which is consistent with the default for the `coxph` function from the R package `survival`.
 
-The function `plrtest` does the actual testing. The Imhof method (Imhof, 1961) implemented in R package `CompQuadForm` (Duchesne et al, 2010) is used to compute the distribution function of the weighted sum of $\chi^2$ distributions for theorems 1 and 3 (Fine, 2002). In the call of `plrtest`, one only needs to provide two fitted `coxph` objects and specify whether the models are nested or not. It is important, that `coxph` is run with the option `x=T`. Both models need to be fitted with the same data, which might be an issue in case of missing data. 
-For non-nested models, one can adjust (option `adjusted=TRUE`) for the difference in the number of parameters in both models using the correction factor $p/2$ log $n$ - $q/2$ log $n$ (Vuong, 1989) which corresponds to the information criterion of Schwarz (1978). 
+The function `plrtest` does the actual testing. The Imhof method (Imhof, 1961) implemented in R package `CompQuadForm` (Duchesne et al, 2010) is used to compute the distribution function of the weighted sum of $\chi^2$ distributions for theorems 1 and 3 (Fine, 2002). In the call of `plrtest`, one only needs to provide two fitted `coxph` objects and specify whether the models are nested or not. It is important that `coxph` is run with the option `x=T`. Both models need to be fitted with the same data, which might be an issue in case of missing data. 
+For non-nested models, one can adjust (option `adjusted=TRUE`) for the difference in the number of parameters in both models using the correction factor $p/2$ log $n$ - $q/2$ log $n$ (Vuong, 1989) which corresponds to the information criterion of Schwarz (1978), but with number of events instead of number of observations. 
 
 The output of `plrtest` is a S3 object of class `finetest` for which a `print` function exists.
 
