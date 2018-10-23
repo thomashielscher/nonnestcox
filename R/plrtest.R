@@ -29,48 +29,40 @@
 
 plrtest <- function (object1, object2, nested = FALSE, adjusted=FALSE) {
 
+  ## basic checks on data
   if (is.null(object1$x) | is.null(object2$x)) stop("coxph object without x=T option fitted")
-
-  # basic check on data
   if (any(object1$y[,1]!=object2$y[,1]) | any(object1$y[,2]!=object2$y[,2])) stop("models not fitted on the same data or data not in the same order")
 
-  if (nested) {
-    if (logLik(object2)[1] > logLik(object1)[1]) {
-      tmp     <- object1
-      object1 <- object2
-      object2 <- tmp
-    }
-  }
-
-  llA <- llcont(object1)
-  llB <- llcont(object2)
-  lr  <- sum(llA - llB)
-
-  n   <- length(llA)
+  ## model dimensions
+  n   <- object1$n
   z1  <- object1$x
   z2  <- object2$x
   p1  <- ncol(z1)
   p2  <- ncol(z2)
 
-  # information matrix
+  ## casewise log-likelihoods
+  llA <- llcont(object1)
+  llB <- llcont(object2)
+  lr  <- sum(llA - llB)
+
+  ## information matrix
   I1    <- chol2inv(chol(n * vcov(object1)))
   I2    <- chol2inv(chol(n * vcov(object2)))
   zero1 <- matrix(0,p1,p2)
   zero2 <- matrix(0,p2,p1)
-  # score matrix
+
+  ## score matrix
   S1  <- matrix(crossprod(sandwich::estfun(object1))/n, nrow(I1), nrow(I1))
   S2  <- matrix(crossprod(sandwich::estfun(object2))/n, nrow(I2), nrow(I2))
   S12 <- crossprod(sandwich::estfun(object1), sandwich::estfun(object2))/n
   S21 <- t(S12)
+
   ### composite matrices
-  # Sigma12
+  ## Sigma12
   Sigma12 <- cbind(rbind(S1, S21), rbind(S12, S2))
-  # K12
+  ## K12
   K12    <- cbind(rbind(I1, zero2), rbind(zero1, I2))
   K12inv <- chol2inv(chol(K12))
-
-  # initialize p-values
-  pLRTA <- pLRTB <- pLRTAB <- pLRT <- pOmega1 <- pOmega2 <- NA
 
   ### theorem 1, Fine
   Itilde    <- diag(c(rep(1,p1),rep(-1,p2)), ncol=p1+p2, nrow=p1+p2)
@@ -82,18 +74,22 @@ plrtest <- function (object1, object2, nested = FALSE, adjusted=FALSE) {
   B12      <- J %*% K12inv  %*% Sigma12 %*% K12inv
   eigenPSI <- sort(Re(eigen(B12,only.values = TRUE)$values))
 
-  # test statistic for difference in hazards using linear predictor
+  # test statistic for difference in hazards using Fine's approach based on linear predictor
   lp1      <- drop(z1 %*% coef(object1))
   lp2      <- drop(z2 %*% coef(object2))
   varlp    <- (n - 1)/n  * var(lp1 - lp2)
   pOmega1  <- pmax(0,CompQuadForm::imhof(n*varlp, eigenPSI)$Qq)
 
-  ### test statistic for difference in hazards using Vuong approach based on LLi
+  ### test statistic for difference in hazards using Vuong's approach based on LLi
   varll    <- (n - 1)/n * var(llA - llB)
   pOmega2  <- pmax(0,CompQuadForm::imhof(n*varll, eigenPHI^2)$Qq)
 
+  # initialize p-values
+  pLRTA <- pLRTB <- pLRTAB <- pLRT <- NA
+
+  ### theorem 1, Fine
   if (nested) {
-     teststat  <- 2*lr
+     teststat  <- 2*abs(lr)
      pLRTAB    <- pmax(0,CompQuadForm::imhof(teststat, eigenPHI)$Qq)
      pLRT      <- anova(object1, object2)[2,4]
   }
