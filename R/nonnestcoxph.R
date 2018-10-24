@@ -14,14 +14,14 @@ print.finetest <- function (x, ...)
 
   if (x$nested) {
     cat("Robust likelihood ratio test of distinguishable models \n")
-    cat("  H0: Model 2 fits as well as Model 1 \n")
-    cat("  H1: Model 1 fits better than Model 2 \n")
+    cat("  H0: Both models fit equally well \n")
+    cat("  H1: Full model fits better than reduced model \n")
     cat("    LR = ", formatC(x$LRTstat, digits = 3L, format = "f"),
         ",   ", "p = ", format.pval(x$pLRTAB, digits = 3L),
         "\n", sep = "")
     cat("Classical likelihood ratio test\n")
-    cat("  H0: Model 2 fits as well as Model 1 \n")
-    cat("  H1: Model 1 fits better than Model 2 \n")
+    cat("  H0: Both models fit equally well \n")
+    cat("  H1: Full model fits better than reduced mode \n")
     cat("    LR = ", formatC(x$LRTstat, digits = 3L, format = "f"),
         ",   ", "p = ", format.pval(x$pLRT, digits = 3L),
         "\n", sep = "")

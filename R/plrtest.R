@@ -33,6 +33,15 @@ plrtest <- function (object1, object2, nested = FALSE, adjusted=FALSE) {
   if (is.null(object1$x) | is.null(object2$x)) stop("coxph object without x=T option fitted")
   if (any(object1$y[,1]!=object2$y[,1]) | any(object1$y[,2]!=object2$y[,2])) stop("models not fitted on the same data or data not in the same order")
 
+  ## set full model as model 1
+  if (nested) {
+    if (logLik(object2)[1] > logLik(object1)[1]) {
+      tmp     <- object1
+      object1 <- object2
+      object2 <- tmp
+    }
+  }
+
   ## model dimensions
   n   <- object1$n
   z1  <- object1$x
@@ -89,7 +98,7 @@ plrtest <- function (object1, object2, nested = FALSE, adjusted=FALSE) {
 
   ### theorem 1, Fine
   if (nested) {
-     teststat  <- 2*abs(lr)
+     teststat  <- 2*lr
      pLRTAB    <- pmax(0,CompQuadForm::imhof(teststat, eigenPHI)$Qq)
      pLRT      <- anova(object1, object2)[2,4]
   }
