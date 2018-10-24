@@ -38,5 +38,10 @@ print.finetest <- function (x, ...)
     cat("    z = ", formatC(x$LRTstat, digits = 3L, format = "f"),
         ",   ", "p = ", format.pval(x$pLRTB, digits = 4L),
         "\n", sep = "")
+    cat("  H1: Model fits not equally close to true Model \n")
+    cat("    z = ", formatC(x$LRTstat, digits = 3L, format = "f"),
+        ",   ", "two-sided p = ", format.pval(x$pLRTAB, digits = 4L),
+        "\n", sep = "")
+
   }
 }
