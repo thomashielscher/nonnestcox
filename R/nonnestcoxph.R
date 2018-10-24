@@ -21,7 +21,7 @@ print.finetest <- function (x, ...)
         "\n", sep = "")
     cat("Classical likelihood ratio test\n")
     cat("  H0: Both models fit equally well \n")
-    cat("  H1: Full model fits better than reduced mode \n")
+    cat("  H1: Full model fits better than reduced model \n")
     cat("    LR = ", formatC(x$LRTstat, digits = 3L, format = "f"),
         ",   ", "p = ", format.pval(x$pLRT, digits = 3L),
         "\n", sep = "")
