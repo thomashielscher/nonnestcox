@@ -27,10 +27,8 @@ llcont.coxph <- function(object) {
   tmpdat$ordering <- 1:nrow(tmpdat)
   tmpdat          <- tmpdat[order(tmpdat$time),]
   tmpdat$cumelp   <- rev(cumsum(rev(tmpdat$elp)))
-
-  for (i in 2:nrow(tmpdat)) if(tmpdat$time[i]==tmpdat$time[i-1]) tmpdat$cumelp[i] <- tmpdat$cumelp[i-1]
-
-  tmpdat         <- ddply(tmpdat, .(time), mutate, corr=sum(elp[status==1]), weight=pmax(0,cumsum(status)-1)/pmax(1,sum(status)))
+  # ties handling
+  tmpdat         <- ddply(tmpdat, .(time), mutate, cumelp=max(cumelp), corr=sum(elp[status==1]), weight=pmax(0,cumsum(status)-1)/pmax(1,sum(status)))
   tmpdat$cumelp  <- tmpdat$cumelp - tmpdat$weight * tmpdat$corr
   tmpdat$lli     <- ifelse(tmpdat$status==1, log(tmpdat$elp/tmpdat$cumelp), 0)
   # restore original ordering
