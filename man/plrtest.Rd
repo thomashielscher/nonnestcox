@@ -13,7 +13,7 @@ plrtest(object1, object2, nested = FALSE, adjusted = FALSE)
 
 \item{nested}{specify if models are nested, default ist \code{FALSE}}
 
-\item{adjusted}{specify if test statistic for non-nested models should be adjusted for different complexities of the models using BIC-type adjustment (p/2)log n - (q/2)log n, default ist \code{FALSE}}
+\item{adjusted}{specify if test statistic for non-nested models should be adjusted for different complexities of the models using BIC-type adjustment (p/2)log n - (q/2)log n, but with number of events instead of number of observations. Default ist \code{FALSE}}
 }
 \value{
 a object of class \code{finetest}

@@ -12,7 +12,7 @@
 #' # individual LLs sum up to total model LL
 #' sum(llcont(mod));logLik(mod)[1]
 #' }
-#' @importFrom plyr ddply ldply llply mutate .
+#' @importFrom data.table data.table
 #' @export
 
 llcont <- function(x, ...) UseMethod("llcont")
@@ -27,9 +27,13 @@ llcont.coxph <- function(object) {
   tmpdat$ordering <- 1:nrow(tmpdat)
   tmpdat          <- tmpdat[order(tmpdat$time),]
   tmpdat$cumelp   <- rev(cumsum(rev(tmpdat$elp)))
-  # ties handling
-  tmpdat         <- ddply(tmpdat, .(time), mutate, cumelp=max(cumelp), corr=sum(elp[status==1]), weight=pmax(0,cumsum(status)-1)/pmax(1,sum(status)))
-  tmpdat$cumelp  <- tmpdat$cumelp - tmpdat$weight * tmpdat$corr
+  # ties handling (Efron)
+  tmpdat          <- data.table(tmpdat)
+  tmpdat          <- tmpdat[, cumelp := max(cumelp), by = time]
+  tmpdat          <- tmpdat[, corr   := sum(elp[status==1]), by = time]
+  tmpdat          <- tmpdat[, weight := pmax(0,cumsum(status)-1)/pmax(1,sum(status)), by = time]
+  tmpdat$cumelp   <- tmpdat$cumelp - tmpdat$weight * tmpdat$corr
+  # non-zero lli
   tmpdat$lli     <- ifelse(tmpdat$status==1, log(tmpdat$elp/tmpdat$cumelp), 0)
   # restore original ordering
   tmpdat         <- tmpdat[order(tmpdat$ordering),]
