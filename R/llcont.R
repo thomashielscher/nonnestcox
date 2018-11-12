@@ -3,7 +3,7 @@
 #' @author Thomas Hielscher
 #' @param model \code{coxph} model with \code{x=T}
 #' @details ties are handled according to Efron
-#' @return a vector of individual likelihoods
+#' @return a vector of individual likelihoods (sorted by decreasing event times)
 #' @examples
 #' \dontrun{
 #' ### example data set from Fine paper, section 5
@@ -22,21 +22,19 @@ llcont <- function(x, ...) UseMethod("llcont")
 llcont.coxph <- function(object) {
 
   if (is.null(object$x)) stop("coxph object without x=T option fitted")
-  # save original ordering of data before calculations
-  tmpdat          <- data.frame(time=object$y[,1], status=object$y[,2], elp=exp(drop(object$x %*% coef(object))))
-  tmpdat$ordering <- 1:nrow(tmpdat)
-  tmpdat          <- tmpdat[order(tmpdat$time),]
-  tmpdat$cumelp   <- rev(cumsum(rev(tmpdat$elp)))
+  if (any(object$y[,"status"]>1)) stop("competing risk not supported")
+
+  tmpdat          <- data.frame(time=object$y[,"time"], status=object$y[,"status"], elp=exp(drop(object$x %*% coef(object))))
+  tmpdat          <- tmpdat[order(-tmpdat$time),]
+  tmpdat$cumelp   <- cumsum(tmpdat$elp)
   # ties handling (Efron)
   tmpdat          <- data.table(tmpdat)
   tmpdat          <- tmpdat[, cumelp := max(cumelp), by = time]
   tmpdat          <- tmpdat[, corr   := sum(elp[status==1]), by = time]
   tmpdat          <- tmpdat[, weight := pmax(0,cumsum(status)-1)/pmax(1,sum(status)), by = time]
   tmpdat$cumelp   <- tmpdat$cumelp - tmpdat$weight * tmpdat$corr
-  # non-zero lli
-  tmpdat$lli     <- ifelse(tmpdat$status==1, log(tmpdat$elp/tmpdat$cumelp), 0)
-  # restore original ordering
-  tmpdat         <- tmpdat[order(tmpdat$ordering),]
+  # individual log-likelihoods
+  tmpdat$lli      <- log(tmpdat$elp/tmpdat$cumelp) * tmpdat$status
   return(tmpdat$lli)
 }
 

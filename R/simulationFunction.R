@@ -197,7 +197,7 @@ simNonNestedBinomial <- function(B, n, beta1, beta2, censrate=0) {
 
 ### test on difference in c-index (see concordance vignette survival package)
 .conctest <- function(m1, m2){
-  ctest <- concordance(m1, m2)
+  ctest <- survival::concordance(m1, m2)
   contr <- c(-1, 1)
   dtest <- contr %*% coef(ctest)
   dvar  <- contr %*% vcov(ctest) %*% contr

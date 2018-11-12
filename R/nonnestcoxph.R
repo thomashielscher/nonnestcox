@@ -9,8 +9,8 @@ print.finetest <- function (x, ...)
   cat("\nVariance test \n")
   cat("  H0: Model 1 and Model 2 are indistinguishable", "\n")
   cat("  H1: Model 1 and Model 2 are distinguishable", "\n")
-  cat("Fine: p = ", format.pval(x$pOmega1, digits = 3L), "\n", sep = "")
-  cat("Vuong: p = ", format.pval(x$pOmega2, digits = 3L), "\n\n", sep = "")
+  cat("Fine: p = ", format.pval(x$pOmega, digits = 3L), "\n", sep = "")
+#  cat("Vuong: p = ", format.pval(x$pOmega2, digits = 3L), "\n\n", sep = "")
 
   if (x$nested) {
     cat("Robust likelihood ratio test of distinguishable models \n")

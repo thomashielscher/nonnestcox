@@ -4,16 +4,16 @@
 \alias{plrtest}
 \title{Partial Likelihood Ratio Test for non-nested \code{coxph} models}
 \usage{
-plrtest(object1, object2, nested = FALSE, adjusted = FALSE)
+plrtest(object1, object2, nested = FALSE, adjusted = "none")
 }
 \arguments{
 \item{object1}{\code{coxph} model with \code{x=T}}
 
 \item{object2}{\code{coxph} model with \code{x=T}, based on the identical data and order of observations as for \code{object1}}
 
-\item{nested}{specify if models are nested, default ist \code{FALSE}}
+\item{nested}{specify if models are nested, default is \code{FALSE}}
 
-\item{adjusted}{specify if test statistic for non-nested models should be adjusted for different complexities of the models using BIC-type adjustment (p/2)log n - (q/2)log n, but with number of events instead of number of observations. Default ist \code{FALSE}}
+\item{adjusted}{specify if test statistic for non-nested models should be adjusted for different complexities of the models using AIC/BIC-type adjustment. BIC uses number of events instead of number of observations. Possible values are \code{AIC}, \code{BIC} and \code{none}. Default is \code{none}.}
 }
 \value{
 a object of class \code{finetest}
