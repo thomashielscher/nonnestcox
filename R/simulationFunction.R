@@ -86,17 +86,16 @@ simNonNestedNormal <- function(B, n, beta1, beta2, censrate=0) {
    resnest <- c("H0 robust"=H0r, "H0 classical"=H0, "cindex"=cN)
 
    # non-nested
-   H1    <- .powerfunc(resNonN$pOmega1)
-   H1b   <- .powerfunc(resNonN$pOmega2)
+   H1    <- .powerfunc(resNonN$pOmega)
    H0    <- .powerfunc(resNonN$pLRTAB)
    seqH0 <- .powerfunc(pmax(resNonN$pOmega1, resNonN$pLRTAB))
-   resnonnest <- c("H1 Fine"=H1,"H1 Vuong"=H1b,"H0"=H0,"H0seq"= seqH0,"cindex"=cNonN)
+   resnonnest <- c("H1"=H1,"H0"=H0,"H0seq"= seqH0,"cindex"=cNonN)
 
    H1    <- .powerfunc(resNonNlog$pOmega1)
    H1b   <- .powerfunc(resNonNlog$pOmega2)
    H0    <- .powerfunc(resNonNlog$pLRTAB)
    seqH0 <- .powerfunc(pmax(resNonNlog$pOmega1, resNonNlog$pLRTAB))
-   resnonnestlog <- c("H1 Fine"=H1,"H1 Vuong"=H1b,"H0"=H0,"H0seq"= seqH0,"cindex"=cNonNlog)
+   resnonnestlog <- c("H1"=H1,"H0"=H0,"H0seq"= seqH0,"cindex"=cNonNlog)
 
    return(list(B1vsB1B2=resnest, B1vsB2=resnonnest, logB1B2vsB1B2=resnonnestlog, censProp=resCens))
 }
@@ -183,11 +182,10 @@ simNonNestedBinomial <- function(B, n, beta1, beta2, censrate=0) {
   resnest <- c("H0 robust"=H0r, "H0 classical"=H0, "cindex"=cN)
 
   # non-nested
-  H1    <- .powerfunc(resNonN$pOmega1)
-  H1b   <- .powerfunc(resNonN$pOmega2)
+  H1    <- .powerfunc(resNonN$pOmega)
   H0    <- .powerfunc(resNonN$pLRTAB)
-  seqH0 <- .powerfunc(pmax(resNonN$pOmega1, resNonN$pLRTAB))
-  resnonnest <- c("H1 Fine"=H1,"H1 Vuong"=H1b,"H0"=H0,"H0seq"= seqH0, "cindex"=cNonN)
+  seqH0 <- .powerfunc(pmax(resNonN$pOmega, resNonN$pLRTAB))
+  resnonnest <- c("H1"=H1,"H0"=H0,"H0seq"= seqH0, "cindex"=cNonN)
 
   return(list(B1vsB1B2=resnest, B1vsB2=resnonnest, censProp=resCens))
 }
