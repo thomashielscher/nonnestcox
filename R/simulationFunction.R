@@ -91,8 +91,7 @@ simNonNestedNormal <- function(B, n, beta1, beta2, censrate=0) {
    seqH0 <- .powerfunc(pmax(resNonN$pOmega, resNonN$pLRTAB))
    resnonnest <- c("H1"=H1,"H0"=H0,"H0seq"= seqH0,"cindex"=cNonN)
 
-   H1    <- .powerfunc(resNonNlog$pOmega1)
-   H1b   <- .powerfunc(resNonNlog$pOmega2)
+   H1    <- .powerfunc(resNonNlog$pOmega)
    H0    <- .powerfunc(resNonNlog$pLRTAB)
    seqH0 <- .powerfunc(pmax(resNonNlog$pOmega, resNonNlog$pLRTAB))
    resnonnestlog <- c("H1"=H1,"H0"=H0,"H0seq"= seqH0,"cindex"=cNonNlog)
