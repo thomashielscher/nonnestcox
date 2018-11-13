@@ -2,7 +2,7 @@
 title: "QuickStart"
 author: "Thomas Hielscher"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: rmarkdown::github_document
 vignette: >
   %\VignetteIndexEntry{QuickStart}
   %\VignetteEngine{knitr::rmarkdown}
@@ -55,8 +55,7 @@ logLik(mod3)[1]
 
 ### Nested Models
 
-Models 1 and 3 are nested. Models are clearly distinguishable with either type of test. 
-Classical and alternative likelihood-ratio test both indicate highly significant improvement of the larger model.
+Models 1 and 3 are nested. Models are clearly distinguishable. Classical and alternative likelihood-ratio test both indicate highly significant improvement of the larger model.
 
 ```{r,results='markup'}
 plrtest(mod3, mod1, nested=T)
@@ -64,7 +63,7 @@ plrtest(mod3, mod1, nested=T)
 
 ### Non-nested Models
 
-Models 2 and 3 are not nested. Models are clearly distinguishable with either type of test. 
+Models 2 and 3 are not nested. Models are clearly distinguishable. 
 The likelihood-ratio test significantly favors the model with log-transformed predictors as shown in Fine (2002).
 
 ```{r, results='markup'}
@@ -87,7 +86,7 @@ Merkle et al (2016, Psychological Methods) apply Voung's test to structural equa
 The function `llcont.coxph` computes individual contributions to the partial log-likelihood using Efron's method of handling ties, which is consistent with the default for the `coxph` function from the R package `survival`.
 
 The function `plrtest` does the actual testing. The Imhof method (Imhof, 1961) implemented in R package `CompQuadForm` (Duchesne et al, 2010) is used to compute the distribution function of the weighted sum of $\chi^2$ distributions for theorems 1 and 3 (Fine, 2002). In the call of `plrtest`, one only needs to provide two fitted `coxph` objects and specify whether the models are nested or not. It is important that `coxph` is run with the option `x=T`. Both models need to be fitted with the same data, which might be an issue in case of missing data. 
-For non-nested models, one can adjust (option `adjusted`) for the difference in the number of parameters in both models using the AIC or BIC correction factor (Vuong, 1989), but for BIC with number of events instead of number of observations. 
+For non-nested models, one can adjust (option `adjusted`) for the difference in the number of parameters in both models using the AIC or BIC correction factor (Vuong, 1989), but for BIC using number of events instead of number of observations. 
 
 The output of `plrtest` is a S3 object of class `finetest` for which a `print` function exists.
 
