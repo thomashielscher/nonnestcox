@@ -1,7 +1,7 @@
 #' Getting partial log-likelihood of a \code{coxph} object for individual cases
 #'
 #' @author Thomas Hielscher
-#' @param model \code{coxph} model with \code{x=T}
+#' @param x \code{coxph} model with \code{x=T}
 #' @details ties are handled according to Efron
 #' @return a vector of individual likelihoods (sorted by decreasing event times)
 #' @examples
@@ -15,16 +15,16 @@
 #' @importFrom data.table data.table
 #' @export
 
-llcont <- function(x, ...) UseMethod("llcont")
+llcont <- function(x) UseMethod("llcont")
 
 #' @export
 
-llcont.coxph <- function(object) {
+llcont.coxph <- function(x) {
 
-  if (is.null(object$x)) stop("coxph object without x=T option fitted")
-  if (any(object$y[,"status"]>1)) stop("competing risk not supported")
+  if (is.null(x$x)) stop("coxph object without x=T option fitted")
+  if (any(x$y[,"status"]>1)) stop("competing risk not supported")
 
-  tmpdat          <- data.frame(time=object$y[,"time"], status=object$y[,"status"], elp=exp(drop(object$x %*% coef(object))))
+  tmpdat          <- data.frame(time=x$y[,"time"], status=x$y[,"status"], elp=exp(drop(x$x %*% coef(x))))
   tmpdat          <- tmpdat[order(-tmpdat$time),]
   tmpdat$cumelp   <- cumsum(tmpdat$elp)
   # ties handling (Efron)

@@ -3,14 +3,14 @@ Title: Comparing nonnested CoxPH models
 Version: 0.0.0.9000
 Authors@R: person("Thomas", "Hielscher", email = "t.hielscher@dkfz.de", role = c("aut", "cre"))
 Description: Comparing nonnested CoxPH models.
-Depends: R (>= 3.4.3)
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
 Imports: survival,
     plyr,
     sandwich,
-    CompQuadForm
+    CompQuadForm,
+    data.table
 RoxygenNote: 6.0.1
 Suggests: knitr,
     rmarkdown

@@ -4,10 +4,10 @@
 \alias{llcont}
 \title{Getting partial log-likelihood of a \code{coxph} object for individual cases}
 \usage{
-llcont(x, ...)
+llcont(x)
 }
 \arguments{
-\item{model}{\code{coxph} model with \code{x=T}}
+\item{x}{\code{coxph} model with \code{x=T}}
 }
 \value{
 a vector of individual likelihoods (sorted by decreasing event times)
