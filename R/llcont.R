@@ -17,6 +17,21 @@
 
 llcont <- function(x) UseMethod("llcont")
 
+#' Getting partial log-likelihood of a \code{coxph} object for individual cases
+#'
+#' @author Thomas Hielscher
+#' @param x \code{coxph} model with \code{x=T}
+#' @details ties are handled according to Efron
+#' @return a vector of individual likelihoods (sorted by decreasing event times)
+#' @examples
+#' \dontrun{
+#' ### example data set from Fine paper, section 5
+#' require("survival")
+#' mod <- coxph(Surv(time, status==2) ~ age + log(albumin) + log(bili) + edema + log(protime), data=subset(pbc, !is.na(trt)),  x=T)
+#' # individual LLs sum up to total model LL
+#' sum(llcont(mod));logLik(mod)[1]
+#' }
+#' @importFrom data.table data.table
 #' @export
 
 llcont.coxph <- function(x) {
