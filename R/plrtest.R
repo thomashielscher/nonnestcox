@@ -5,7 +5,7 @@
 #' @param object2 \code{coxph} model with \code{x=T}, based on the identical data and order of observations as for \code{object1}
 #' @param nested  specify if models are nested, default is \code{FALSE}
 #' @param adjusted  specify if test statistic for non-nested models should be adjusted for different complexities of the models using AIC/BIC-type adjustment. BIC uses number of events instead of number of observations. Possible values are \code{AIC}, \code{BIC} and \code{none}. Default is \code{none}.
-#' @return a object of class \code{finetest}
+#' @return an object of class \code{finetest}
 #' @references Fine J.P., Comparing nonnested Cox models, Biometrika (2002), 89, 3, 635-647.
 #' @references Vuong Q.H., Likelihood Ratio Tests for Model Selection and Non-Nested Hypotheses, Econometrika (1989), 57, 2, 307-333.
 #' @references Merkle E.C. and You D., Testing Nonnested Structural Equation Models, Psychological Methods (2016), 21, 2, 151-163.
@@ -32,6 +32,7 @@ plrtest <- function (object1, object2, nested = FALSE, adjusted="none") {
   ## basic checks on data
   if (is.null(object1$x) | is.null(object2$x)) stop("coxph object without x=T option fitted")
   if (any(object1$y[,"time"]!=object2$y[,"time"]) | any(object1$y[,"status"]!=object2$y[,"status"])) stop("models not fitted on the same data or data not in the same order")
+  if (ncol(object1$x)==0 | ncol(object2$x)==0) stop("plrtest with empty model not supported")
 
   ## set full model as model 1
   if (nested) {
