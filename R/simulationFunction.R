@@ -89,7 +89,8 @@ simNonNestedNormal <- function(B, n, beta1, beta2, censrate=0) {
    H1     <- .powerfunc(resNonN$pOmega)
    H0     <- .powerfunc(resNonN$pLRTAB)
    seqH0  <- .powerfunc(pmax(resNonN$pOmega, resNonN$pLRTAB))
-   condH0 <- try(.powerfunc(resNonN$pLRTAB[resNonN$pOmega<0.05]), silent = T)
+   if (any(resNonN$pOmega<0.05)) condH0 <- .powerfunc(resNonN$pLRTAB[which(resNonN$pOmega<0.05)])
+   else condH0 <- NA
    resnonnest <- c("H1"=H1,"H0"=H0,"H0seq"= seqH0, "H0cond"=condH0,"cindex"=cNonN)
 
    H1     <- .powerfunc(resNonNlog$pOmega)
@@ -185,7 +186,8 @@ simNonNestedBinomial <- function(B, n, beta1, beta2, censrate=0) {
   H1     <- .powerfunc(resNonN$pOmega)
   H0     <- .powerfunc(resNonN$pLRTAB)
   seqH0  <- .powerfunc(pmax(resNonN$pOmega, resNonN$pLRTAB))
-  condH0 <- try(.powerfunc(resNonN$pLRTAB[resNonN$pOmega<0.05]), silent = T)
+  if (any(resNonN$pOmega<0.05)) condH0 <- .powerfunc(resNonN$pLRTAB[which(resNonN$pOmega<0.05)])
+  else condH0 <- NA
   resnonnest <- c("H1"=H1,"H0"=H0,"H0seq"= seqH0, "H0cond"=condH0,"cindex"=cNonN)
 
   return(list(B1vsB1B2=resnest, B1vsB2=resnonnest, censProp=resCens))
