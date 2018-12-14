@@ -89,14 +89,13 @@ simNonNestedNormal <- function(B, n, beta1, beta2, censrate=0) {
    H1     <- .powerfunc(resNonN$pOmega)
    H0     <- .powerfunc(resNonN$pLRTAB)
    seqH0  <- .powerfunc(pmax(resNonN$pOmega, resNonN$pLRTAB))
-   condH0 <- .powerfunc(resNonN$pLRTAB[resNonN$pOmega<0.05])
+   condH0 <- try(.powerfunc(resNonN$pLRTAB[resNonN$pOmega<0.05]), silent = T)
    resnonnest <- c("H1"=H1,"H0"=H0,"H0seq"= seqH0, "H0cond"=condH0,"cindex"=cNonN)
 
    H1     <- .powerfunc(resNonNlog$pOmega)
    H0     <- .powerfunc(resNonNlog$pLRTAB)
    seqH0  <- .powerfunc(pmax(resNonNlog$pOmega, resNonNlog$pLRTAB))
-   condH0 <- .powerfunc(resNonNlog$pLRTAB[resNonNlog$pOmega<0.05])
-   resnonnestlog <- c("H1"=H1,"H0"=H0,"H0seq"= seqH0, "H0cond"=condH0,"cindex"=cNonNlog)
+   resnonnestlog <- c("H1"=H1,"H0"=H0,"H0seq"= seqH0, "cindex"=cNonNlog)
 
    return(list(B1vsB1B2=resnest, B1vsB2=resnonnest, logB1B2vsB1B2=resnonnestlog, censProp=resCens))
 }
@@ -186,7 +185,7 @@ simNonNestedBinomial <- function(B, n, beta1, beta2, censrate=0) {
   H1     <- .powerfunc(resNonN$pOmega)
   H0     <- .powerfunc(resNonN$pLRTAB)
   seqH0  <- .powerfunc(pmax(resNonN$pOmega, resNonN$pLRTAB))
-  condH0 <- .powerfunc(resNonN$pLRTAB[resNonN$pOmega<0.05])
+  condH0 <- try(.powerfunc(resNonN$pLRTAB[resNonN$pOmega<0.05]), silent = T)
   resnonnest <- c("H1"=H1,"H0"=H0,"H0seq"= seqH0, "H0cond"=condH0,"cindex"=cNonN)
 
   return(list(B1vsB1B2=resnest, B1vsB2=resnonnest, censProp=resCens))
