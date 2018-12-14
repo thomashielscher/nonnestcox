@@ -86,15 +86,17 @@ simNonNestedNormal <- function(B, n, beta1, beta2, censrate=0) {
    resnest <- c("H0 robust"=H0r, "H0 classical"=H0, "cindex"=cN)
 
    # non-nested
-   H1    <- .powerfunc(resNonN$pOmega)
-   H0    <- .powerfunc(resNonN$pLRTAB)
-   seqH0 <- .powerfunc(pmax(resNonN$pOmega, resNonN$pLRTAB))
-   resnonnest <- c("H1"=H1,"H0"=H0,"H0seq"= seqH0,"cindex"=cNonN)
+   H1     <- .powerfunc(resNonN$pOmega)
+   H0     <- .powerfunc(resNonN$pLRTAB)
+   seqH0  <- .powerfunc(pmax(resNonN$pOmega, resNonN$pLRTAB))
+   condH0 <- .powerfunc(resNonN$pLRTAB[resNonN$pOmega<0.05])
+   resnonnest <- c("H1"=H1,"H0"=H0,"H0seq"= seqH0, "H0cond"=condH0,"cindex"=cNonN)
 
-   H1    <- .powerfunc(resNonNlog$pOmega)
-   H0    <- .powerfunc(resNonNlog$pLRTAB)
-   seqH0 <- .powerfunc(pmax(resNonNlog$pOmega, resNonNlog$pLRTAB))
-   resnonnestlog <- c("H1"=H1,"H0"=H0,"H0seq"= seqH0,"cindex"=cNonNlog)
+   H1     <- .powerfunc(resNonNlog$pOmega)
+   H0     <- .powerfunc(resNonNlog$pLRTAB)
+   seqH0  <- .powerfunc(pmax(resNonNlog$pOmega, resNonNlog$pLRTAB))
+   condH0 <- .powerfunc(resNonNlog$pLRTAB[resNonNlog$pOmega<0.05])
+   resnonnestlog <- c("H1"=H1,"H0"=H0,"H0seq"= seqH0, "H0cond"=condH0,"cindex"=cNonNlog)
 
    return(list(B1vsB1B2=resnest, B1vsB2=resnonnest, logB1B2vsB1B2=resnonnestlog, censProp=resCens))
 }
@@ -181,10 +183,11 @@ simNonNestedBinomial <- function(B, n, beta1, beta2, censrate=0) {
   resnest <- c("H0 robust"=H0r, "H0 classical"=H0, "cindex"=cN)
 
   # non-nested
-  H1    <- .powerfunc(resNonN$pOmega)
-  H0    <- .powerfunc(resNonN$pLRTAB)
-  seqH0 <- .powerfunc(pmax(resNonN$pOmega, resNonN$pLRTAB))
-  resnonnest <- c("H1"=H1,"H0"=H0,"H0seq"= seqH0, "cindex"=cNonN)
+  H1     <- .powerfunc(resNonN$pOmega)
+  H0     <- .powerfunc(resNonN$pLRTAB)
+  seqH0  <- .powerfunc(pmax(resNonN$pOmega, resNonN$pLRTAB))
+  condH0 <- .powerfunc(resNonN$pLRTAB[resNonN$pOmega<0.05])
+  resnonnest <- c("H1"=H1,"H0"=H0,"H0seq"= seqH0, "H0cond"=condH0,"cindex"=cNonN)
 
   return(list(B1vsB1B2=resnest, B1vsB2=resnonnest, censProp=resCens))
 }
@@ -200,6 +203,6 @@ simNonNestedBinomial <- function(B, n, beta1, beta2, censrate=0) {
   dvar  <- contr %*% vcov(ctest) %*% contr
   zstat <- dtest/sqrt(dvar)
   pval  <- 2 * (1 - pnorm(abs(zstat)))
-  res   <- c(cindex1=coef(ctest)[1], cindex2=coef(ctest)[2], cindexDiff=dtest, sd=sqrt(dvar), z=zstat, pvalue=pval)
+  res   <- c(cindex=coef(ctest), cindexDiff=dtest, sd=sqrt(dvar), z=zstat, pvalue=pval)
   return(res)
 }
