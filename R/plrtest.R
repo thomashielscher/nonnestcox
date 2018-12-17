@@ -62,9 +62,9 @@ plrtest <- function (object1, object2, nested = FALSE, adjusted="none") {
   zero2 <- matrix(0,p2,p1)
 
   ## score matrix
-  S1  <- matrix(crossprod(sandwich::estfun(object1))/n, nrow(I1), nrow(I1))
-  S2  <- matrix(crossprod(sandwich::estfun(object2))/n, nrow(I2), nrow(I2))
-  S12 <- crossprod(sandwich::estfun(object1), sandwich::estfun(object2))/n
+  S1  <- matrix(crossprod(residuals(object1, type="score"))/n, nrow(I1), nrow(I1))
+  S2  <- matrix(crossprod(residuals(object2, type="score"))/n, nrow(I2), nrow(I2))
+  S12 <- crossprod(residuals(object1, type="score"), residuals(object2, type="score"))/n
   S21 <- t(S12)
 
   ### composite matrices
