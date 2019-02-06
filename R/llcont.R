@@ -22,7 +22,7 @@ llcont <- function(x) UseMethod("llcont")
 #' @author Thomas Hielscher
 #' @param x \code{coxph} model fitted with \code{x=T}
 #' @details ties are handled according to Efron
-#' @return a vector of individual likelihoods (sorted by decreasing event times)
+#' @return a vector of individual likelihoods (sorted by increasing event times)
 #' @examples
 #' \dontrun{
 #' ### example data set from Fine paper, section 5
@@ -51,6 +51,8 @@ llcont.coxph <- function(x) {
   tmpdat$cumelp   <- tmpdat$cumelp - tmpdat$weight * tmpdat$corr
   # individual log-likelihoods
   tmpdat$lli      <- log(tmpdat$elp/tmpdat$cumelp) * tmpdat$status
+  # order by time, needed for l3 term computation in plrtest
+  tmpdat          <- tmpdat[order(tmpdat$time),]
   return(tmpdat$lli)
 }
 

@@ -16,7 +16,7 @@ plrtest(object1, object2, nested = FALSE, adjusted = "none")
 \item{adjusted}{specify if test statistic for non-nested models should be adjusted for different complexities of the models using AIC/BIC-type adjustment. BIC uses number of events instead of number of observations. Possible values are \code{AIC}, \code{BIC} and \code{none}. Default is \code{none}.}
 }
 \value{
-a object of class \code{finetest}
+an object of class \code{finetest}
 }
 \description{
 Partial Likelihood Ratio Test for non-nested \code{coxph} models
