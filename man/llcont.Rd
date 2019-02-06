@@ -10,7 +10,7 @@ llcont(x)
 \item{x}{\code{coxph} model fitted with \code{x=T}}
 }
 \value{
-a vector of individual likelihoods (sorted by decreasing event times)
+a vector of individual likelihoods (sorted by increasing event times)
 }
 \description{
 Getting partial log-likelihood of a \code{coxph} object for individual cases
