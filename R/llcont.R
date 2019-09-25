@@ -43,12 +43,15 @@ llcont.coxph <- function(x) {
   if(ncol(x$x)>0) tmpdat$elp <- exp(drop(x$x %*% coef(x)))
   tmpdat          <- tmpdat[order(-tmpdat$time),]
   tmpdat$cumelp   <- cumsum(tmpdat$elp)
+
   # ties handling (Efron)
-  tmpdat          <- data.table(tmpdat)
-  tmpdat          <- tmpdat[, cumelp := max(cumelp), by = time]
-  tmpdat          <- tmpdat[, corr   := sum(elp[status==1]), by = time]
-  tmpdat          <- tmpdat[, weight := pmax(0,cumsum(status)-1)/pmax(1,sum(status)), by = time]
-  tmpdat$cumelp   <- tmpdat$cumelp - tmpdat$weight * tmpdat$corr
+  if (anyDuplicated(tmpdat$time[tmpdat$status==1])[1]!=0){
+     tmpdat          <- data.table(tmpdat)
+     tmpdat          <- tmpdat[, cumelp := max(cumelp), by = time]
+     tmpdat          <- tmpdat[, corr   := sum(elp[status==1]), by = time]
+     tmpdat          <- tmpdat[, weight := pmax(0,cumsum(status)-1)/pmax(1,sum(status)), by = time]
+     tmpdat$cumelp   <- tmpdat$cumelp - tmpdat$weight * tmpdat$corr
+  }
   # individual log-likelihoods
   tmpdat$lli      <- log(tmpdat$elp/tmpdat$cumelp) * tmpdat$status
   # order by time, needed for l3 term computation in plrtest
