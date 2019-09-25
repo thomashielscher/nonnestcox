@@ -4,7 +4,6 @@
 #' @param n sample size
 #' @param beta1 first coefficient
 #' @param beta2 second coefficient
-#' @param beta3 third coefficient
 #' @param censrate censoring rate for exponential model
 #' @return list
 #' @examples
@@ -12,16 +11,16 @@
 #' require("survival")
 #' require("lava")
 #' # setup
-#' simmat  <- expand.grid(n=c(100, 200, 350), beta1=c(0,0.5,1),beta2=c(0,1), beta3=1)
+#' simmat  <- expand.grid(n=c(100, 200, 350), beta1=c(0,0.5,1),beta2=c(0,1))
 #' # simulations w/o censoring
-#' simres <- t(apply(simmat, 1, function(d) unlist(simNonNestedNormal(B=10, n=d[1], beta1=d[2], beta2=d[3], beta3=d[4], censrate=0))))
+#' simres <- t(apply(simmat, 1, function(d) unlist(simNonNestedNormal(B=10, n=d[1], beta1=d[2], beta2=d[3], censrate=0))))
 #' simres <- cbind(simmat,simres)
 #' }
 #'
 #' @export
 #'
 
-simNonNestedNormal <- function(B, n, beta1, beta2, beta3, censrate=0) {
+simNonNestedNormal <- function(B, n, beta1, beta2, censrate=0) {
 
    resultsNonN <- resultsN <- resultsNonNlog <- resultsNonNc <- resultsNc <- resultsNonNlogc <- list()
    censprob <- rep(NA,B)
@@ -35,11 +34,9 @@ simNonNestedNormal <- function(B, n, beta1, beta2, beta3, censrate=0) {
    #  predictors
    distribution(m,"V1") <- gaussian.lvm()
    distribution(m,"V2") <- gaussian.lvm()
-   distribution(m,"V3") <- gaussian.lvm()
    # coefficients
    regression(m,from="V1",to="eventtime") <- beta1
    regression(m,from="V2",to="eventtime") <- beta2
-   regression(m,from="V3",to="eventtime") <- beta3
 
    ### simulation runs
    for (runs in 1:B) {
@@ -110,16 +107,15 @@ simNonNestedNormal <- function(B, n, beta1, beta2, beta3, censrate=0) {
 #' @param n sample size
 #' @param beta1 first coefficient
 #' @param beta2 second coefficient
-#' @param beta3 third coefficient
 #' @param censrate censoring rate for exponential model
 #' @return list
 #' @examples
 #' \dontrun{
 #' require("lava")
 #' # setup
-#' simmat  <- expand.grid(n=c(100, 200, 350), beta1=c(0,0.5,1),beta2=c(0,1), beta3=1)
+#' simmat  <- expand.grid(n=c(100, 200, 350), beta1=c(0,0.5,1),beta2=c(0,1))
 #' # simulations w/o censoring
-#' simres <- t(apply(simmat, 1, function(d) unlist(simNonNestedBinomial(B=10, n=d[1], beta1=d[2], beta2=d[3], beta3=d[4], censrate=0))))
+#' simres <- t(apply(simmat, 1, function(d) unlist(simNonNestedBinomial(B=10, n=d[1], beta1=d[2], beta2=d[3], censrate=0))))
 #' simres <- cbind(simmat,simres)
 #' }
 #'
@@ -127,7 +123,7 @@ simNonNestedNormal <- function(B, n, beta1, beta2, beta3, censrate=0) {
 #' @export
 
 
-simNonNestedBinomial <- function(B, n, beta1, beta2, beta3, censrate=0) {
+simNonNestedBinomial <- function(B, n, beta1, beta2, censrate=0) {
 
   resultsNonN <- resultsN <- resultsNonNc <- resultsNc <- list()
   censprob <- rep(NA,B)
@@ -141,11 +137,9 @@ simNonNestedBinomial <- function(B, n, beta1, beta2, beta3, censrate=0) {
   #  predictors
   distribution(m,"V1") <- binomial.lvm(p=0.5)
   distribution(m,"V2") <- binomial.lvm(p=0.5)
-  distribution(m,"V3") <- binomial.lvm(p=0.5)
   # coefficients
   regression(m,from="V1",to="eventtime") <- beta1
   regression(m,from="V2",to="eventtime") <- beta2
-  regression(m,from="V3",to="eventtime") <- beta3
 
   ### simulation runs
   for (runs in 1:B) {
