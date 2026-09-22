@@ -1,8 +1,8 @@
 #' Partial Likelihood Ratio Test for non-nested \code{coxph} models
 #'
 #' @author Thomas Hielscher
-#' @param object1 \code{coxph} model with \code{x=T}
-#' @param object2 \code{coxph} model with \code{x=T}, based on the identical data and order of observations as for \code{object1}
+#' @param object1 \code{coxph} model with \code{x=T} and \code{y=T}
+#' @param object2 \code{coxph} model with \code{x=T} and \code{y=T}, based on the identical data and order of observations as for \code{object1}
 #' @param nested  specify if models are nested, default is \code{FALSE}
 #' @param adjusted  specify if test statistic for non-nested models should be adjusted for different complexities of the models using AIC/BIC-type adjustment. BIC uses number of events instead of number of observations. Possible values are \code{AIC}, \code{BIC} and \code{none}. Default is \code{none}.
 #' @return an object of class \code{finetest}
@@ -17,9 +17,9 @@
 #' ### example data set from Fine paper, section 5
 #' require("survival")
 #' pbc  <- subset(pbc, !is.na(trt))
-#' mod1 <- coxph(Surv(time, status==2) ~ age, data=pbc, x=T)
-#' mod2 <- coxph(Surv(time, status==2) ~ age + albumin + bili + edema + protime, data=pbc,  x=T)
-#' mod3 <- coxph(Surv(time, status==2) ~ age + log(albumin) + log(bili) + edema + log(protime), data=pbc, x=T)
+#' mod1 <- coxph(Surv(time, status==2) ~ age, data=pbc, x=T, y=T)
+#' mod2 <- coxph(Surv(time, status==2) ~ age + albumin + bili + edema + protime, data=pbc,  x=T, y=T)
+#' mod3 <- coxph(Surv(time, status==2) ~ age + log(albumin) + log(bili) + edema + log(protime), data=pbc, x=T, y=T)
 #' plrtest(mod3, mod2, nested=F) # non-nested models
 #' plrtest(mod3, mod1, nested=T) # nested models
 #' }
@@ -89,40 +89,134 @@ plrtest <- function (object1, object2, nested = FALSE, adjusted="none") {
   varlp    <- (n - 1)/n  * var(lp1 - lp2)
   pOmega   <- pmax(0,CompQuadForm::imhof(n*varlp, eigenPSI)$Qq)
 
-  ### test statistic for difference in hazards using Vuong's approach based on LLi (not iid)
-#  varll    <- (n - 1)/n * var(llA - llB)
-#  pOmega2  <- pmax(0,CompQuadForm::imhof(n*varll, eigenPHI^2)$Qq)
 
   # initialize p-values
   pLRTA <- pLRTB <- pLRTAB <- pLRT <- NA
 
   ### theorem 1, Fine
   if (nested) {
-     teststat  <- 2*lr
-     pLRTAB    <- pmax(0,CompQuadForm::imhof(teststat, eigenPHI)$Qq)
-     pLRT      <- anova(object1, object2)[2,4]
+    teststat  <- 2*lr
+    pLRTAB    <- pmax(0,CompQuadForm::imhof(teststat, eigenPHI)$Qq)
+    pLRT      <- anova(object1, object2)[2,4]
   }
 
   ### theorem 2, Fine
   if (!nested) {
-     if (adjusted=="AIC") {
-       lr <- lr - (p1 - p2)
-     }
-     if (adjusted=="BIC") {
-       lr <- lr - (log(object1$nevent)/2 * (p1 - p2))
-     }
-     # variance estimation (Fine, appendix), account for l3 term correction
-     lstar      <- llA - llB - cumsum(exp(llA) - exp(llB))
-     varlstar   <- (n - 1)/n * var(lstar)
-     # standardized test statistics
-     teststat   <- (1/sqrt(n)) * lr/sqrt(varlstar)
-     pLRTA      <- pnorm(teststat, lower.tail = FALSE)
-     pLRTB      <- pnorm(teststat)
-     pLRTAB     <- 2 * min(pLRTA, pLRTB) # two-sided
+    if (adjusted=="AIC") {
+      lr <- lr - (p1 - p2)
+    }
+    if (adjusted=="BIC") {
+      lr <- lr - (log(object1$nevent)/2 * (p1 - p2))
+    }
+    # correct variance estimation (Fine, appendix), with the help of copilot
+    fv       <- fine_variance(object1, object2)
+    varlstar <- fv$tau2
+    # standardized test statistics
+    teststat   <- (1/sqrt(n)) * lr/sqrt(varlstar)
+
+    pLRTA      <- pnorm(teststat, lower.tail = FALSE)
+    pLRTB      <- pnorm(teststat)
+    pLRTAB     <- 2 * min(pLRTA, pLRTB) # two-sided
   }
 
   rval <- list(pOmega = pOmega, LRTstat = teststat, pLRT=pLRT, pLRTA= pLRTA, pLRTB = pLRTB, pLRTAB=pLRTAB ,nested = nested)
   class(rval) <- "finetest"
   return(rval)
 }
+
+### Copilot
+fine_variance <- function(object1, object2) {
+
+  y1 <- object1$y
+  y2 <- object2$y
+
+  if (is.null(y1) || is.null(y2))
+    stop("Fit models using y = TRUE.")
+
+  time1 <- y1[, "time"]
+  time2 <- y2[, "time"]
+
+  status1 <- y1[, "status"]
+  status2 <- y2[, "status"]
+
+  if (!identical(as.numeric(time1),
+                 as.numeric(time2)) ||
+      !identical(as.numeric(status1),
+                 as.numeric(status2)))
+    stop("Models must contain identical observations.")
+
+  time <- as.numeric(time1)
+  status <- as.numeric(status1)
+
+  n <- length(time)
+
+  eta1 <- object1$linear.predictors
+  eta2 <- object2$linear.predictors
+
+  rr1 <- exp(eta1)
+  rr2 <- exp(eta2)
+
+  event <- which(status == 1)
+  tevent <- time[event]
+
+  ## sort events
+  ord <- order(tevent)
+
+  event <- event[ord]
+  tevent <- tevent[ord]
+
+  ## risk-set denominators
+  R1 <- vapply(
+    tevent,
+    function(t)
+      sum(rr1[time >= t]),
+    numeric(1)
+  )
+
+  R2 <- vapply(
+    tevent,
+    function(t)
+      sum(rr2[time >= t]),
+    numeric(1)
+  )
+
+  ## A5
+  l1 <- status * (eta1 - eta2)
+
+  ## A6
+  a <- log(R1) - log(R2)
+
+  l2 <- rep(-sum(a) / n, n)
+  l2[event] <- l2[event] + a
+
+  ## A7
+  C1 <- cumsum(1 / R1)
+  C2 <- cumsum(1 / R2)
+
+  k <- findInterval(time, tevent)
+
+  l3 <- numeric(n)
+
+  use <- k > 0
+
+  l3[use] <-
+    rr1[use] * C1[k[use]] -
+    rr2[use] * C2[k[use]]
+
+  ## A8
+  lstar <- l1 - l2 - l3
+  lstar <- lstar - mean(lstar)
+
+  tau2 <- mean(lstar^2)
+
+  list(
+    tau2 = tau2,
+    tau = sqrt(tau2),
+    lstar = lstar,
+    l1 = l1,
+    l2 = l2,
+    l3 = l3
+  )
+}
+
 
