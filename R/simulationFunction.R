@@ -22,7 +22,7 @@
 
 simNonNestedNormal <- function(B, n, beta1, beta2, censrate=0) {
 
-   resultsNonN <- resultsN <- resultsNonNlog <- resultsNonNc <- resultsNc <- resultsNonNlogc <- list()
+   resultsNonN <- resultsN <- resultsNonNlog <- resultsNonNc <- resultsNc <- list()
    censprob <- rep(NA,B)
 
    ### simulation set-up
@@ -45,21 +45,14 @@ simNonNestedNormal <- function(B, n, beta1, beta2, censrate=0) {
       set.seed(123+runs)
       # simulate data
       simdat       <- sim(m,n)
-      simdat$expV1 <- exp(simdat$V1)
       # fit competing models
       m1 <- coxph(Surv(time, status) ~ V1, simdat,x=T)
       m2 <- coxph(Surv(time, status) ~ V2, simdat,x=T)
       m3 <- coxph(Surv(time, status) ~ V1    + V2, simdat,x=T)
-      m4 <- coxph(Surv(time, status) ~ expV1 + V2, simdat,x=T)
 
       # tests
       resultsN[[runs]]       <- unlist(plrtest(m1, m3, nested=T)[1:7])
       resultsNonN[[runs]]    <- unlist(plrtest(m1, m2, nested=F)[1:7])
-      resultsNonNlog[[runs]] <- unlist(plrtest(m4, m3, nested=F)[1:7])
-      # cindex
-      resultsNc[[runs]]       <- .conctest(m1, m3)["pvalue"]
-      resultsNonNc[[runs]]    <- .conctest(m1, m2)["pvalue"]
-      resultsNonNlogc[[runs]] <- .conctest(m4, m3)["pvalue"]
 
       # censoring
       censprob[runs]         <- sum(1 - simdat$status)/n
@@ -68,22 +61,17 @@ simNonNestedNormal <- function(B, n, beta1, beta2, censrate=0) {
    ### test results
    # LRT
    resNonN    <- data.frame(do.call("rbind",resultsNonN))
-   resNonNlog <- data.frame(do.call("rbind",resultsNonNlog))
    resN       <- data.frame(do.call("rbind",resultsN))
 
    # average censoring
    resCens <- mean(censprob, na.rm=T)
 
    ### power
-   # c-index
-   cN       <- .powerfunc(unlist(resultsNc))
-   cNonN    <- .powerfunc(unlist(resultsNonNc))
-   cNonNlog <- .powerfunc(unlist(resultsNonNlogc))
-
    # nested
+   H0o <- .powerfunc(resN$pOmega)
    H0r <- .powerfunc(resN$pLRTAB)
    H0  <- .powerfunc(resN$pLRT)
-   resnest <- c("H0 robust"=H0r, "H0 classical"=H0, "cindex"=cN)
+   resnest <- c("H0 robust"=H0r, "H0 classical"=H0, "H0 distinguish"=H0o)
 
    # non-nested
    H1     <- .powerfunc(resNonN$pOmega)
@@ -91,14 +79,9 @@ simNonNestedNormal <- function(B, n, beta1, beta2, censrate=0) {
    seqH0  <- .powerfunc(pmax(resNonN$pOmega, resNonN$pLRTAB))
    if (any(resNonN$pOmega<0.05)) condH0 <- .powerfunc(resNonN$pLRTAB[which(resNonN$pOmega<0.05)])
    else condH0 <- NA
-   resnonnest <- c("H1"=H1,"H0"=H0,"H0seq"= seqH0, "H0cond"=condH0,"cindex"=cNonN)
+   resnonnest <- c("H1"=H1,"H0"=H0,"H0seq"= seqH0, "H0cond"=condH0)
 
-   H1     <- .powerfunc(resNonNlog$pOmega)
-   H0     <- .powerfunc(resNonNlog$pLRTAB)
-   seqH0  <- .powerfunc(pmax(resNonNlog$pOmega, resNonNlog$pLRTAB))
-   resnonnestlog <- c("H1"=H1,"H0"=H0,"H0seq"= seqH0, "cindex"=cNonNlog)
-
-   return(list(B1vsB1B2=resnest, B1vsB2=resnonnest, logB1B2vsB1B2=resnonnestlog, censProp=resCens))
+   return(list(B1vsB1B2=resnest, B1vsB2=resnonnest, censProp=resCens))
 }
 
 #' simulations with two binomial distributed predictors
@@ -151,14 +134,11 @@ simNonNestedBinomial <- function(B, n, beta1, beta2, censrate=0) {
     # fit competing models
     m1 <- coxph(Surv(time, status) ~ V1, simdat,x=T)
     m2 <- coxph(Surv(time, status) ~ V2, simdat,x=T)
-    m3 <- coxph(Surv(time, status) ~ V1 + V2, simdat,x=T)
+    m3 <- coxph(Surv(time, status) ~ V1    + V2, simdat,x=T)
 
     # tests
     resultsN[[runs]]       <- unlist(plrtest(m1, m3, nested=T)[1:7])
     resultsNonN[[runs]]    <- unlist(plrtest(m1, m2, nested=F)[1:7])
-    # cindex
-    resultsNc[[runs]]       <- .conctest(m1, m3)["pvalue"]
-    resultsNonNc[[runs]]    <- .conctest(m1, m2)["pvalue"]
 
     # censoring
     censprob[runs]         <- sum(1 - simdat$status)/n
@@ -173,14 +153,11 @@ simNonNestedBinomial <- function(B, n, beta1, beta2, censrate=0) {
   resCens <- mean(censprob, na.rm=T)
 
   ### power
-  # c-index
-  cN       <- .powerfunc(unlist(resultsNc))
-  cNonN    <- .powerfunc(unlist(resultsNonNc))
-
   # nested
+  H0o <- .powerfunc(resN$pOmega)
   H0r <- .powerfunc(resN$pLRTAB)
   H0  <- .powerfunc(resN$pLRT)
-  resnest <- c("H0 robust"=H0r, "H0 classical"=H0, "cindex"=cN)
+  resnest <- c("H0 robust"=H0r, "H0 classical"=H0, "H0 distinguish"=H0o)
 
   # non-nested
   H1     <- .powerfunc(resNonN$pOmega)
@@ -188,7 +165,7 @@ simNonNestedBinomial <- function(B, n, beta1, beta2, censrate=0) {
   seqH0  <- .powerfunc(pmax(resNonN$pOmega, resNonN$pLRTAB))
   if (any(resNonN$pOmega<0.05)) condH0 <- .powerfunc(resNonN$pLRTAB[which(resNonN$pOmega<0.05)])
   else condH0 <- NA
-  resnonnest <- c("H1"=H1,"H0"=H0,"H0seq"= seqH0, "H0cond"=condH0,"cindex"=cNonN)
+  resnonnest <- c("H1"=H1,"H0"=H0,"H0seq"= seqH0, "H0cond"=condH0)
 
   return(list(B1vsB1B2=resnest, B1vsB2=resnonnest, censProp=resCens))
 }
@@ -196,14 +173,3 @@ simNonNestedBinomial <- function(B, n, beta1, beta2, censrate=0) {
 ### power function
 .powerfunc <- function(x) sum(as.numeric(x[!is.na(x)] < 0.05))/length(x[!is.na(x)])
 
-### test on difference in c-index (see concordance vignette survival package)
-.conctest <- function(m1, m2){
-  ctest <- survival::concordance(m1, m2)
-  contr <- c(-1, 1)
-  dtest <- contr %*% coef(ctest)
-  dvar  <- contr %*% vcov(ctest) %*% contr
-  zstat <- dtest/sqrt(dvar)
-  pval  <- 2 * (1 - pnorm(abs(zstat)))
-  res   <- c(cindex=coef(ctest), cindexDiff=dtest, sd=sqrt(dvar), z=zstat, pvalue=pval)
-  return(res)
-}

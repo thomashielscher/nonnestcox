@@ -1,8 +1,8 @@
 #' Partial Likelihood Ratio Test for non-nested \code{coxph} models
 #'
 #' @author Thomas Hielscher
-#' @param object1 \code{coxph} model with \code{x=T} and \code{y=T}
-#' @param object2 \code{coxph} model with \code{x=T} and \code{y=T}, based on the identical data and order of observations as for \code{object1}
+#' @param object1 \code{coxph} model with \code{x=T}
+#' @param object2 \code{coxph} model with \code{x=T}, based on the identical data and order of observations as for \code{object1}
 #' @param nested  specify if models are nested, default is \code{FALSE}
 #' @param adjusted  specify if test statistic for non-nested models should be adjusted for different complexities of the models using AIC/BIC-type adjustment. BIC uses number of events instead of number of observations. Possible values are \code{AIC}, \code{BIC} and \code{none}. Default is \code{none}.
 #' @return an object of class \code{finetest}
