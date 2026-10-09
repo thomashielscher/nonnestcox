@@ -119,7 +119,7 @@ plrtest <- function (object1, object2, nested = FALSE, adjusted="none") {
     pLRTAB     <- 2 * min(pLRTA, pLRTB) # two-sided
   }
 
-  rval <- list(pOmega = pOmega, LRTstat = teststat, pLRT=pLRT, pLRTA= pLRTA, pLRTB = pLRTB, pLRTAB=pLRTAB ,nested = nested)
+  rval <- list(Omegastat=varlp, pOmega = pOmega, LRTstat = teststat, pLRT=pLRT, pLRTA= pLRTA, pLRTB = pLRTB, pLRTAB=pLRTAB ,nested = nested)
   class(rval) <- "finetest"
   return(rval)
 }

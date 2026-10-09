@@ -7,13 +7,12 @@
 print.finetest <- function (x, ...)
 {
   cat("\nVariance test \n")
-  cat("  H0: Model 1 and Model 2 are indistinguishable", "\n")
-  cat("  H1: Model 1 and Model 2 are distinguishable", "\n")
-  cat("Fine: p = ", format.pval(x$pOmega, digits = 3L), "\n", sep = "")
-#  cat("Vuong: p = ", format.pval(x$pOmega2, digits = 3L), "\n\n", sep = "")
+  cat("  H0: Model 1 and Model 2 have equal hazards", "\n")
+  cat("  H1: Model 1 and Model 2 do not have equal hazards", "\n")
+  cat("p = ", format.pval(x$pOmega, digits = 3L), "\n", sep = "")
 
   if (x$nested) {
-    cat("Robust likelihood ratio test of distinguishable models \n")
+    cat("Robust likelihood ratio test \n")
     cat("  H0: Both models fit equally well \n")
     cat("  H1: Full model fits better than reduced model \n")
     cat("    LR = ", formatC(x$LRTstat, digits = 3L, format = "f"),
