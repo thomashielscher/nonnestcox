@@ -50,10 +50,8 @@ plrtest <- function (object1, object2, nested = FALSE, adjusted="none") {
   p1  <- ncol(z1)
   p2  <- ncol(z2)
 
-  ## casewise log-likelihoods
-  llA <- llcont(object1)
-  llB <- llcont(object2)
-  lr  <- sum(llA - llB) # logLik(object1)[1] - logLik(object2)[1]
+  ## partial log-likelihood test statistic
+  lr  <- logLik(object1)[1] - logLik(object2)[1]
 
   ## information matrix
   I1    <- chol2inv(chol(n * vcov(object1)))
