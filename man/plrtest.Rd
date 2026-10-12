@@ -26,9 +26,9 @@ Partial Likelihood Ratio Test for non-nested \code{coxph} models
 ### example data set from Fine paper, section 5
 require("survival")
 pbc  <- subset(pbc, !is.na(trt))
-mod1 <- coxph(Surv(time, status==2) ~ age, data=pbc, x=T)
-mod2 <- coxph(Surv(time, status==2) ~ age + albumin + bili + edema + protime, data=pbc,  x=T)
-mod3 <- coxph(Surv(time, status==2) ~ age + log(albumin) + log(bili) + edema + log(protime), data=pbc, x=T)
+mod1 <- coxph(Surv(time, status==2) ~ age, data=pbc, x=T, y=T)
+mod2 <- coxph(Surv(time, status==2) ~ age + albumin + bili + edema + protime, data=pbc,  x=T, y=T)
+mod3 <- coxph(Surv(time, status==2) ~ age + log(albumin) + log(bili) + edema + log(protime), data=pbc, x=T, y=T)
 plrtest(mod3, mod2, nested=F) # non-nested models
 plrtest(mod3, mod1, nested=T) # nested models
 }
