@@ -6,13 +6,13 @@
 
 print.finetest <- function (x, ...)
 {
-  cat("\nVariance test \n")
+  cat("\Test on equal hazards \n")
   cat("  H0: Model 1 and Model 2 have equal hazards", "\n")
   cat("  H1: Model 1 and Model 2 do not have equal hazards", "\n")
   cat("p = ", format.pval(x$pOmega, digits = 3L), "\n", sep = "")
 
   if (x$nested) {
-    cat("Robust likelihood ratio test \n")
+    cat("Robust partial likelihood ratio test \n")
     cat("  H0: Both models fit equally well \n")
     cat("  H1: Full model fits better than reduced model \n")
     cat("    LR = ", formatC(x$LRTstat, digits = 3L, format = "f"),
@@ -27,7 +27,7 @@ print.finetest <- function (x, ...)
 
   }
   else {
-    cat("Non-nested likelihood ratio test \n")
+    cat("Non-nested partial likelihood ratio test \n")
     cat("  H0: Model fits are equally close to true Model \n")
     cat("  H1A: Model 1 fits better than Model 2 \n")
     cat("    z = ", formatC(x$LRTstat, digits = 3L, format = "f"),

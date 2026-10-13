@@ -82,11 +82,10 @@ plrtest <- function (object1, object2, nested = FALSE, adjusted="none") {
   J        <- (n/(n-1))* cbind(rbind(var(z1), -cov(z2,z1)), rbind(-cov(z1,z2), var(z2)))
   B12      <- J %*% K12inv  %*% Sigma12 %*% K12inv
   eigenPSI <- sort(Re(eigen(B12,only.values = TRUE)$values))
-  lp1      <- drop(z1 %*% coef(object1))
-  lp2      <- drop(z2 %*% coef(object2))
+  lp1      <- object1$linear.predictors
+  lp2      <- object2$linear.predictors
   varlp    <- (n - 1)/n  * var(lp1 - lp2)
   pOmega   <- pmax(0,CompQuadForm::imhof(n*varlp, eigenPSI)$Qq)
-
 
   # initialize p-values
   pLRTA <- pLRTB <- pLRTAB <- pLRT <- NA
